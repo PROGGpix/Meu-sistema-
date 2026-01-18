@@ -1,0 +1,38 @@
+body {
+  background: #0f0f0f;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.ficha {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+}
+
+input {
+  width: 100%;
+  padding: 5px;
+  margin-top: 3px;
+}
+
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 8px;
+  background: #8b0000;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+

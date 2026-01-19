@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Sistema RPG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========================= -->
+  <!-- TELA LOGIN -->
+  <!-- ========================= -->
+  <section id="tela-login" class="tela ativa">
+    <h2>Entrar</h2>
+
+    <div class="campo">
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="email@email.com">
+    </div>
+
+    <div class="campo">
+      <label>Senha</label>
+      <input id="loginSenha" type="password" placeholder="********">
+    </div>
+
+    <button class="btn enabled" onclick="entrarConta()">ENTRAR</button>
+    <button class="btn enabled" onclick="criarConta()">CRIAR CONTA</button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- TELA MEUS PERSONAGENS -->
+  <!-- ========================= -->
+  <section id="tela-personagens" class="tela">
+    <h2>Meus Personagens</h2>
+
+    <div id="listaPersonagens" class="lista"></div>
+
+    <button class="btn enabled" onclick="abrirCriacao()">
+      CRIAR NOVO PERSONAGEM
+    </button>
+
+    <button class="btn enabled" onclick="sairConta()">
+      SAIR
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- TOPO DAS ETAPAS -->
+  <!-- ========================= -->
+  <div class="topo-etapas" id="topoEtapas" style="display:none;">
+    <span class="etapa ativa" id="t-atributos">Atributos</span>
+    <span class="etapa" id="t-oficio">Ofício</span>
+    <span class="etapa" id="t-pericias">Perícias</span>
+    <span class="etapa" id="t-classe">Classe</span>
+    <span class="etapa" id="t-identidade">Identidade</span>
+  </div>
+
+  <!-- ========================= -->
+  <!-- ETAPA 1: ATRIBUTOS -->
+  <!-- ========================= -->
+  <section id="etapa-atributos" class="tela">
+    <h2 class="titulo-topo">ATRIBUTOS</h2>
+
+    <div class="linha-hex-img">
+      <div class="hex-img">
+        <img src="hex.png" alt="Hex">
+        <span class="sigla">FOR</span>
+        <input id="forca" type="number" min="0" placeholder="0" oninput="verificarAtributos()">
+      </div>
+
+      <div class="hex-img">
+        <img src="hex.png" alt="Hex">
+        <span class="sigla">AGI</span>
+        <input id="agilidade" type="number" min="0" placeholder="0" oninput="verificarAtributos()">
+      </div>
+
+      <div class="hex-img">
+        <img src="hex.png" alt="Hex">
+        <span class="sigla">INT</span>
+        <input id="intelecto" type="number" min="0" placeholder="0" oninput="verificarAtributos()">
+      </div>
+
+      <div class="hex-img">
+        <img src="hex.png" alt="Hex">
+        <span class="sigla">VIG</span>
+        <input id="vigor" type="number" min="0" placeholder="0" oninput="verificarAtributos()">
+      </div>
+
+      <div class="hex-img">
+        <img src="hex.png" alt="Hex">
+        <span class="sigla">AUR</span>
+        <input id="aura" type="number" min="0" placeholder="0" oninput="verificarAtributos()">
+      </div>
+    </div>
+
+    <button id="btnAtributos" class="btn" disabled onclick="irParaOficio()">
+      PRÓXIMO
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- ETAPA 2: OFÍCIO -->
+  <!-- ========================= -->
+  <section id="etapa-oficio" class="tela">
+    <div class="filtro-topo">
+      <div class="campo-filtro">
+        <input id="filtroOficio" type="text" oninput="filtrarOficios()" autocomplete="off">
+        <span class="placeholder-filtro" id="phOficio">filtro</span>
+      </div>
+
+      <div class="atributo-oficio" id="atributoOficioSelecionado">—</div>
+    </div>
+
+    <div id="listaOficios" class="lista"></div>
+
+    <button id="btnOficio" class="btn" disabled onclick="irParaPericias()">
+      PRÓXIMO
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- ETAPA 3: PERÍCIAS -->
+  <!-- ========================= -->
+  <section id="etapa-pericias" class="tela">
+    <div class="filtro-topo">
+      <div class="campo-filtro">
+        <input id="filtroPericias" type="text" oninput="filtrarPericias()" autocomplete="off">
+        <span class="placeholder-filtro" id="phPericias">filtro</span>
+      </div>
+    </div>
+
+    <h2>Perícias (escolha pelo menos 1)</h2>
+
+    <div id="listaPericias" class="lista"></div>
+
+    <button id="btnPericias" class="btn" disabled onclick="irParaClasse()">
+      PRÓXIMO
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- ETAPA 4: CLASSE -->
+  <!-- ========================= -->
+  <section id="etapa-classe" class="tela">
+    <div class="filtro-topo">
+      <div class="campo-filtro">
+        <input id="filtroClasse" type="text" oninput="filtrarClasses()" autocomplete="off">
+        <span class="placeholder-filtro" id="phClasse">filtro</span>
+      </div>
+    </div>
+
+    <h2>Classe Inicial</h2>
+
+    <div id="listaClasses" class="lista"></div>
+
+    <div id="detalhesClasse" class="detalhes-classe escondido">
+      <h3 id="dcNome"></h3>
+
+      <div class="dc-bloco">
+        <h4>Bônus</h4>
+        <div id="dcBonus" class="dc-texto"></div>
+      </div>
+
+      <div class="dc-bloco">
+        <h4>Habilidades</h4>
+        <div id="dcHabilidades" class="dc-texto"></div>
+      </div>
+
+      <div class="dc-bloco">
+        <h4>Ofício/Perícias</h4>
+        <div id="dcOficioPericias" class="dc-texto"></div>
+      </div>
+
+      <div class="dc-bloco" id="dcReqBloco">
+        <h4>Requisitos</h4>
+        <div id="dcRequisitos" class="dc-texto"></div>
+      </div>
+    </div>
+
+    <button id="btnClasse" class="btn" disabled onclick="irParaIdentidade()">
+      PRÓXIMO
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- ETAPA 5: IDENTIDADE -->
+  <!-- ========================= -->
+  <section id="etapa-identidade" class="tela">
+    <h2>Identidade</h2>
+
+    <div class="campo">
+      <label>Nome do Jogador</label>
+      <input id="nomeJogadorInput" type="text" placeholder="Digite seu nome" oninput="verificarIdentidade()">
+    </div>
+
+    <div class="campo">
+      <label>Nome do Personagem</label>
+      <input id="nomePersonagemInput" type="text" placeholder="Digite o nome do personagem" oninput="verificarIdentidade()">
+    </div>
+
+    <div class="campo">
+      <label>Descrição do Personagem (opcional)</label>
+      <textarea id="descricaoPersonagem" maxlength="100" placeholder="Até 100 caracteres" oninput="atualizarContador()"></textarea>
+      <small id="contadorDescricao">0 / 100</small>
+    </div>
+
+    <button id="btnFinalizar" class="btn" disabled onclick="finalizarPersonagem()">
+      FINALIZAR
+    </button>
+  </section>
+
+  <!-- ========================= -->
+  <!-- TELA FINAL -->
+  <!-- ========================= -->
+  <section id="tela-ficha" class="tela">
+    <h2>Personagem Criado</h2>
+
+    <div class="linha-info"><b>Jogador:</b> <span id="fJogador"></span></div>
+    <div class="linha-info"><b>Personagem:</b> <span id="fPersonagem"></span></div>
+    <div class="linha-info"><b>Ofício:</b> <span id="fOficio"></span></div>
+    <div class="linha-info"><b>Classe:</b> <span id="fClasse"></span></div>
+
+    <p class="campanha">
+      Campanha: <span id="fCampanha"></span>
+    </p>
+
+    <button class="btn enabled" onclick="voltarParaLista()">
+      VOLTAR
+    </button>
+  </section>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

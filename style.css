@@ -1,0 +1,220 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0b0b0b;
+  color: #fff;
+  padding: 16px;
+}
+
+.tela {
+  display: none;
+}
+
+.tela.ativa {
+  display: block;
+}
+
+.titulo {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.topo-etapas {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.etapa {
+  font-size: 14px;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+.etapa.ativa {
+  opacity: 1;
+  font-weight: bold;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 14px;
+  font-size: 16px;
+  background: #2a2a2a;
+  color: #777;
+}
+
+.btn.enabled {
+  background: #d0d0d0;
+  color: #111;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+}
+
+.campo {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo input, .campo textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #151515;
+  color: white;
+}
+
+textarea {
+  resize: none;
+  height: 90px;
+}
+
+.contador {
+  text-align: right;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.filtro {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #151515;
+  color: white;
+  margin: 10px 0 14px 0;
+}
+
+.lista-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  padding: 14px;
+  border-radius: 14px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: rgba(255,255,255,0.25);
+}
+
+.card.selecionado {
+  border-color: white;
+}
+
+.card .titulo-card {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.card .sub-card {
+  opacity: 0.7;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.detalhes {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #121212;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.linha-info {
+  margin-top: 10px;
+}
+
+.campanha {
+  margin-top: 16px;
+  opacity: 0.8;
+}
+
+/* ATRIBUTOS HEX */
+.atributos-area {
+  margin-top: 14px;
+  background: #111;
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.atributos-texto {
+  text-align: center;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  opacity: 0.9;
+}
+
+.hex-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.hex-card {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.hex-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.hex-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.hex-label {
+  font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.hex-input {
+  width: 60px;
+  text-align: center;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  color: white;
+  font-size: 18px;
+  padding: 6px;
+}

@@ -1,0 +1,301 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0b0b0b;
+  color: #fff;
+  padding: 16px;
+}
+
+.tela { display: none; }
+.tela.ativa { display: block; }
+
+.titulo { font-size: 22px; margin-bottom: 8px; }
+.subtitulo { opacity: 0.7; margin-bottom: 12px; }
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  margin-top: 14px;
+  font-size: 16px;
+  background: #2a2a2a;
+  color: #777;
+}
+
+.btn.enabled {
+  background: #d0d0d0;
+  color: #111;
+}
+
+.campo {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo input, .campo textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #151515;
+  color: white;
+}
+
+textarea { resize: none; height: 90px; }
+
+.card {
+  padding: 14px;
+  border-radius: 14px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card .titulo-card {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.card .sub-card {
+  opacity: 0.7;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.lista-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detalhes {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #121212;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.linha-info { margin-top: 10px; }
+.campanha { margin-top: 16px; opacity: 0.8; }
+
+.linha-div{
+  margin-top: 18px;
+  border: none;
+  height: 1px;
+  background: rgba(255,255,255,0.10);
+}
+
+/* BARRAS */
+.barras-area{
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barra{
+  background: #121212;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.barra-topo{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+.barra-bg{
+  margin-top: 8px;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.barra-fill{
+  height: 100%;
+  width: 100%;
+  background: rgba(255,255,255,0.65);
+}
+
+.barra-controles{
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.barra-input{
+  width: 90px;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: #151515;
+  color: white;
+  text-align: center;
+}
+
+.btn-mini-ctrl{
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Toast */
+.toast-salvo{
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: 0.25s;
+  z-index: 999;
+}
+
+.toast-salvo.ativo{
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+/* MENU HAMBÚRGUER */
+.btn-hamb{
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1200;
+}
+
+.menu-lateral{
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 290px;
+  height: 100vh;
+  background: #0f0f0f;
+  border-left: 1px solid rgba(255,255,255,0.12);
+  padding: 14px;
+  z-index: 1201;
+  transition: right 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-lateral.ativo{ right: 0; }
+
+.menu-lateral-topo{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.menu-lateral-titulo{
+  font-weight: bold;
+  letter-spacing: 2px;
+  opacity: 0.9;
+}
+
+.menu-lateral-fechar{
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  cursor: pointer;
+}
+
+.menu-item{
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  z-index: 1200;
+}
+
+.overlay.ativo{ display: block; }
+
+/* CHAT */
+.chat-box{
+  margin-top: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.msg-chat{
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.msg-chat .nome{
+  font-weight: bold;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.msg-chat .texto{
+  margin-top: 4px;
+  font-size: 14px;
+}
+.btn-small {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-weight: 700;
+}

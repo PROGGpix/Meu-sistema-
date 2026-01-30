@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RPG System - v11 Full Database</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CORE --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0; padding: 0; background-color: #050505; color: #ccc;
+            font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ÍCONES SVG */
+        .icon-hex { width: 28px; height: 28px; fill: none; stroke: #d4af37; stroke-width: 2; cursor: pointer; transition: 0.2s; min-width: 28px; }
+        .icon-hex:hover { fill: rgba(212, 175, 55, 0.2); transform: scale(1.1); }
+        .icon-hex:active { transform: scale(0.9); }
+
+        /* Input Modificador */
+        .mod-input { width: 35px; background: transparent; border: 1px solid #333; color: #888; font-size: 0.8rem; text-align: center; border-radius: 4px; padding: 2px; margin-left: auto; }
+        .mod-input:focus { border-color: #d4af37; color: #fff; outline: none; }
+
+        /* --- HOME --- */
+        #home-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 10; display: flex; flex-direction: column; padding: 20px; padding-top: 60px; overflow-y: auto; }
+        .btn-new { background: #fff; color: #000; border: none; padding: 15px; width: 100%; border-radius: 50px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; cursor: pointer; transition: 0.2s; }
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding-bottom: 80px; }
+        .home-card { background: #111; border: 1px solid #333; border-radius: 12px; padding: 20px; position: relative; transition: 0.3s; overflow: hidden; min-height: 160px; background-size: cover; background-position: center; }
+        .home-card::before { content:''; position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)); z-index: 1; }
+        .hc-content { position: relative; z-index: 2; }
+        .hc-name { font-size: 1.4rem; color: #fff; font-weight: 600; text-transform: uppercase; }
+        .hc-class { font-size: 0.8rem; color: #d4af37; text-transform: uppercase; margin-bottom: 10px; display: block;}
+        .btn-access { display: inline-block; margin-top: 15px; padding: 8px 20px; border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 20px; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; background: rgba(0,0,0,0.5); }
+
+        /* --- WIZARD --- */
+        #wizard-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #080808; z-index: 50; display: none; flex-direction: column; }
+        .wiz-nav { display: flex; justify-content: center; padding: 20px; font-size: 0.6rem; letter-spacing: 1px; background: #080808; border-bottom: 1px solid #111; }
+        .wn-item { margin: 0 4px; color: #444; } .wn-item.active { color: #fff; font-weight: bold; }
+        .wiz-content { flex: 1; overflow-y: auto; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; }
+        .step-view { display: none; } .step-view.active { display: block; animation: fadeIn 0.4s; }
+        .wiz-footer { padding: 20px; background: #000; display: flex; gap: 10px; justify-content: center; }
+        .btn-wiz-action { padding: 12px 30px; border-radius: 50px; border: 1px solid #444; background: #111; color: #fff; cursor: pointer; text-transform: uppercase; }
+        .btn-wiz-action.primary { background: #fff; color: #000; border-color: #fff; font-weight: bold; }
+        
+        .attr-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding: 15px 0; max-width: 400px; margin: 0 auto; }
+        .attr-input { background: transparent; border: 1px solid #333; color: #fff; width: 60px; text-align: center; padding: 5px; font-size: 1.2rem; }
+        .cls-card { background: #111; border: 1px solid #333; margin-bottom: 10px; overflow: hidden; transition: 0.3s; border-radius: 6px;}
+        .cls-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; text-transform: uppercase; }
+        .cls-body { max-height: 0; overflow: hidden; background: #0a0a0a; transition: max-height 0.4s; padding: 0 15px; }
+        .cls-body.open { max-height: 400px; padding: 15px; border-top: 1px solid #333; }
+        .btn-pick-cls { width: 100%; padding: 10px; background: #d4af37; color: #000; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .cls-card.selected { border-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .list-sel-item { display: flex; justify-content: space-between; align-items: center; background: #111; border-bottom: 1px solid #222; padding: 15px; cursor: pointer; }
+        .list-sel-item.active { background: #fff; color: #000; }
+        .wiz-form input, .wiz-form textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; padding: 10px 0; margin-bottom: 20px; font-family: inherit; font-size: 1rem; outline: none; }
+
+        /* --- SHEET --- */
+        #sheet-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 20; display: none; flex-direction: column; }
+        .sheet-header { padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; background: #0a0a0a; border-bottom: 1px solid #222; }
+        .sh-info h1 { margin: 0; font-size: 1.2rem; color: #fff; text-transform: uppercase; }
+        .sh-info span { font-size: 0.75rem; color: #888; display: block; margin-top: 4px; }
+        .sheet-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px;}
+        .sheet-view { display: none; } .sheet-view.active { display: block; animation: fadeIn 0.4s; }
+
+        .status-bar-container { margin-bottom: 25px; background: #111; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .progress-track { height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; transition: width 0.3s; }
+        .bar-controls { display: flex; gap: 5px; justify-content: space-between; }
+        .bar-btn { background: #222; border: 1px solid #444; color: #fff; font-size: 0.65rem; padding: 8px 5px; border-radius: 4px; flex: 1; cursor: pointer; white-space: nowrap; }
+        .bar-input { width: 45px; background: #000; border: 1px solid #444; color: #fff; text-align: center; font-size: 0.9rem; border-radius: 4px; }
+        .bg-hp { background: #e74c3c; } .bg-mp { background: #3498db; } .bg-cos { background: #9b59b6; } .bg-ki { background: #f1c40f; } .bg-ck { background: #1abc9c; }
+
+        /* ITEM CARD */
+        .item-card { background: #111; border-left: 3px solid #444; padding: 15px; margin-bottom: 10px; position: relative; cursor: pointer; transition: 0.3s; }
+        .item-card:hover { background: #161616; }
+        .item-card.open { background: #181818; border-left-color: #d4af37; }
+        .item-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; opacity: 0; }
+        .item-card.open .item-details { max-height: 500px; opacity: 1; margin-top: 15px; border-top: 1px dashed #333; padding-top: 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+        .card-top { display: flex; align-items: center; gap: 15px; } 
+        .btn-card-action { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-weight: bold; background: none; border: none; padding: 5px 0; margin-right: 15px; }
+        .btn-remove { color: #bd1e1e; } .btn-edit { color: #d4af37; } .btn-fav { color: #444; font-size:1.2rem; } .btn-fav.active { color: #d4af37; }
+        .btn-add-fancy { width: 100%; padding: 15px; background: #111; border: 1px dashed #444; color: #888; margin-top: 10px; cursor: pointer; text-transform: uppercase; border-radius: 8px; transition: 0.2s; }
+
+        /* EDIT MODAL */
+        #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 300; display: none; align-items: flex-end; }
+        .edit-container { background: #111; width: 100%; max-height: 90%; overflow-y: auto; border-radius: 20px 20px 0 0; border-top: 1px solid #d4af37; padding: 25px; animation: slideUp 0.3s; }
+        @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
+        .edit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .edit-label { font-size: 0.7rem; color: #666; text-transform: uppercase; display: block; margin-top: 12px; margin-bottom: 5px; }
+        .edit-input { width: 100%; background: #080808; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; font-family: inherit; outline: none; }
+        .edit-input:focus { border-color: #d4af37; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .extra-dmg-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .btn-del-extra { background: #bd1e1e; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; }
+        .btn-save-edit { width: 100%; background: #d4af37; color: #000; font-weight: bold; border: none; padding: 15px; margin-top: 20px; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+
+        /* --- BOTÕES FLUTUANTES --- */
+        /* FAB MENU (Principal) */
+        .fab-menu { 
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; 
+            background: #d4af37; border-radius: 50%; box-shadow: 0 5px 20px rgba(0,0,0,0.5); 
+            display: flex; justify-content: center; align-items: center; z-index: 100; cursor: pointer; 
+        }
+        .fab-icon span { display: block; width: 8px; height: 8px; background: #000; margin: 2px; float: left; border-radius: 1px; }
+
+        /* FAB HISTORY (Histórico) - Acima do Menu, um pouco menor */
+        .fab-history {
+            position: fixed; bottom: 100px; right: 35px; width: 50px; height: 50px;
+            background: #222; border: 1px solid #444; border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+            z-index: 99; cursor: pointer; transition: 0.2s; color: #888;
+        }
+        .fab-history:hover { background: #333; color: #d4af37; border-color: #d4af37; }
+        
+        /* TOAST CONTAINER (Popups de Rolagem) */
+        #toast-container {
+            position: fixed; bottom: 160px; right: 20px;
+            display: flex; flex-direction: column; gap: 10px;
+            z-index: 400; pointer-events: none; /* Permite clicar através */
+        }
+        .roll-toast {
+            background: rgba(10, 10, 10, 0.95); border-left: 4px solid #d4af37;
+            padding: 15px; border-radius: 6px; min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            animation: slideInRight 0.3s ease; pointer-events: all;
+            backdrop-filter: blur(5px);
+        }
+        .toast-title { font-size: 0.7rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; }
+        .toast-val { font-size: 1.8rem; font-weight: bold; color: #fff; margin: 5px 0; }
+        .toast-det { font-size: 0.75rem; color: #888; font-family: monospace; }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        /* PAINEL DE HISTÓRICO */
+        #history-panel {
+            position: fixed; bottom: 100px; right: 95px; width: 280px; max-height: 300px;
+            background: #111; border: 1px solid #333; border-radius: 12px;
+            overflow-y: auto; display: none; flex-direction: column-reverse; /* Mais recentes embaixo */
+            padding: 10px; z-index: 300; box-shadow: 0 5px 20px rgba(0,0,0,0.6);
+        }
+        .hist-item { border-bottom: 1px solid #222; padding: 10px 0; }
+        .hist-item:last-child { border-bottom: none; }
+        .hist-time { font-size: 0.6rem; color: #555; display: block; text-align: right; }
+        .hist-res { font-size: 0.9rem; color: #ccc; }
+        .hist-total { color: #d4af37; font-weight: bold; }
+
+        /* MENUS */
+        #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 90; display: none; justify-content: center; align-items: flex-end; padding-bottom: 100px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 400px; }
+        .menu-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 20px; color: #fff; text-align: center; border-radius: 12px; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
+
+        /* ADD MODAL & SETTINGS */
+        #add-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 200; display: none; flex-direction: column; justify-content: flex-end; }
+        .add-content { background: #111; border-top: 1px solid #333; max-height: 70%; display: flex; flex-direction: column; border-radius: 20px 20px 0 0; padding: 20px; }
+        .add-list { overflow-y: auto; flex: 1; }
+        .add-item-row { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: #ccc; }
+        .btn-custom-add { width: 100%; padding: 15px; background: #fff; border: none; color: #000; font-weight: bold; margin-top: 10px; border-radius: 8px; cursor: pointer; }
+        #settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #151515; padding: 20px; border: 1px solid #444; z-index: 200; width: 90%; max-width: 350px; display: none; border-radius: 12px; }
+        .color-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: inline-block; margin: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="home-screen">
+        <h1 style="text-align:center; font-weight:200; letter-spacing:5px; margin-bottom:30px; color:#fff;">SYSTEMA</h1>
+        <button class="btn-new" onclick="startWizard()">+ Novo Agente</button>
+        <div id="home-list" class="char-grid"></div>
+    </div>
+
+    <div id="wizard-screen">
+        <div class="wiz-nav"><span class="wn-item" id="nav-1">ATRIBUTOS</span>→<span class="wn-item" id="nav-2">CLASSES</span>→<span class="wn-item" id="nav-3">OFÍCIOS</span>→<span class="wn-item" id="nav-4">PERÍCIAS</span>→<span class="wn-item" id="nav-5">FIM</span></div>
+        <div class="wiz-content">
+            <div id="step-1" class="step-view active"><h2 style="text-align:center; color:#fff;">ATRIBUTOS</h2><div class="attr-row"><span>FOR</span><input type="number" id="w-for" class="attr-input" value="1"></div><div class="attr-row"><span>AGI</span><input type="number" id="w-agi" class="attr-input" value="1"></div><div class="attr-row"><span>INT</span><input type="number" id="w-int" class="attr-input" value="1"></div><div class="attr-row"><span>VIG</span><input type="number" id="w-vig" class="attr-input" value="1"></div><div class="attr-row"><span>AUR</span><input type="number" id="w-aur" class="attr-input" value="1"></div></div>
+            <div id="step-2" class="step-view"><h2 style="text-align:center; color:#fff;">CLASSES</h2><div id="classes-container"></div></div>
+            <div id="step-3" class="step-view"><h2 style="text-align:center; color:#fff;">OFÍCIOS</h2><div id="oficios-container"></div></div>
+            <div id="step-4" class="step-view"><h2 style="text-align:center; color:#fff;">PERÍCIAS</h2><div id="pericias-container"></div></div>
+            <div id="step-5" class="step-view"><h2 style="text-align:center; color:#fff;">TOQUES FINAIS</h2><div class="wiz-form"><input type="text" id="w-player" placeholder="Nome do Jogador"><input type="text" id="w-name" placeholder="Nome do Personagem"><input type="text" id="w-race" placeholder="Raça"><input type="text" id="w-age" placeholder="Idade"><textarea id="w-hist" placeholder="Histórico..." rows="5"></textarea></div></div>
+        </div>
+        <div class="wiz-footer"><button class="btn-wiz-action" onclick="closeWizard()">Cancelar</button><button class="btn-wiz-action primary" id="btn-next" onclick="nextStep()">Próximo</button></div>
+    </div>
+
+    <div id="sheet-screen">
+        <div class="sheet-header">
+            <div class="sh-info"><button onclick="closeSheet()" style="background:none; border:none; color:#666; margin-bottom:5px;">← VOLTAR</button><h1 id="sh-char-name">Nome</h1><span id="sh-player-race">Player</span></div>
+            <div><button onclick="shareChar()" style="background:none; border:none; color:#fff; font-size:1.2rem;">🔗</button><button onclick="openSettings()" style="background:none; border:none; color:#fff; font-size:1.2rem; margin-left:10px;">⚙️</button></div>
+        </div>
+        <div class="sheet-content">
+            <div id="view-info" class="sheet-view active"><h2 style="border-bottom:1px solid #333;">Dossiê</h2><p id="sh-hist" style="color:#aaa; line-height:1.6;"></p><div style="background:#111; padding:20px; border-radius:8px; margin-top:20px;"><span style="color:#d4af37; font-size:1.2rem; display:block; margin-bottom:5px;" id="sh-class">Classe</span><span style="color:#fff;" id="sh-origem">Origem</span></div></div>
+            <div id="view-atributos" class="sheet-view">
+                <div style="display:flex; justify-content:space-between; align-items:center;"><h3>Atributos Base</h3><button id="btn-edit-attr" onclick="toggleAttrEdit()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✏️</button></div>
+                <div id="base-attrs" style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px; text-align:center; margin-bottom: 20px;"></div>
+                <h3>Reservas Vitais</h3><div id="bars-container"></div>
+            </div>
+            
+            <div id="view-habilidades" class="sheet-view"><h3>Habilidades</h3><div id="list-habilidades"></div><button class="btn-add-fancy" onclick="openAddModal('habilidades')">+ Adicionar Habilidade</button></div>
+            <div id="view-combate" class="sheet-view"><h3>Favoritos</h3><div id="list-favs"></div></div>
+            <div id="view-pericias" class="sheet-view"><h3>Perícias</h3><div id="list-pericias"></div><button class="btn-add-fancy" onclick="openAddModal('pericias')">+ Adicionar Perícia</button></div>
+            <div id="view-oficios" class="sheet-view"><h3>Ofícios</h3><div id="list-oficios"></div><button class="btn-add-fancy" onclick="openAddModal('oficios')">+ Adicionar Ofício</button></div>
+            <div id="view-equipamentos" class="sheet-view"><h3>Equipamentos</h3><div id="list-equipamentos"></div><button class="btn-add-fancy" onclick="openAddModal('equipamentos')">+ Adicionar Equipamento</button></div>
+            <div id="view-itens" class="sheet-view"><h3>Inventário</h3><div id="list-itens"></div><button class="btn-add-fancy" onclick="openAddModal('itens')">+ Adicionar Item</button></div>
+        </div>
+
+        <div id="toast-container"></div> <div id="history-panel"></div> <div class="fab-history" onclick="toggleHistory()">
+            <svg style="width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        
+        <div class="fab-menu" onclick="toggleMenu()"><div class="fab-icon" style="width:24px;"><span></span><span></span><span></span><span></span></div></div>
+    </div>
+
+    <div id="add-modal"><div class="add-content"><div class="add-header"><h3 style="margin:0;" id="add-title">Adicionar</h3><button onclick="document.getElementById('add-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div><div id="add-list-content" class="add-list"></div><button class="btn-custom-add" onclick="addCustomItem()">Criar Personalizado</button></div></div>
+
+    <div id="edit-modal">
+        <div class="edit-container">
+            <div class="edit-header"><h3 style="margin:0; color:#d4af37;">EDITAR</h3><button onclick="document.getElementById('edit-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div>
+            <label class="edit-label">Nome</label><input type="text" id="ed-name" class="edit-input">
+            <div class="grid-2"><div><label class="edit-label">Dano</label><input type="text" id="ed-dmg" class="edit-input"></div><div><label class="edit-label">Crítico</label><input type="text" id="ed-crit" class="edit-input"></div></div>
+            <div class="grid-2"><div><label class="edit-label">Tipo</label><input type="text" id="ed-type" class="edit-input"></div><div><label class="edit-label">Alcance</label><input type="text" id="ed-range" class="edit-input"></div></div>
+            <div class="grid-2"><div><label class="edit-label">Perícia</label><input type="text" id="ed-skill" class="edit-input"></div><div><label class="edit-label">Atributo</label><input type="text" id="ed-attr" class="edit-input"></div></div>
+            <label class="edit-label">Imagem URL</label><input type="text" id="ed-img" class="edit-input">
+            <label class="edit-label">Notas</label><textarea id="ed-notes" class="edit-input" rows="3"></textarea>
+            <div style="margin-top:20px; border-top:1px dashed #333; padding-top:10px;"><label class="edit-label" style="color:#d4af37; font-size:0.9rem;">DANO EXTRA</label><div id="extra-dmg-list"></div><button onclick="addExtraDmgField()" style="background:#222; border:1px solid #444; color:#ccc; padding:8px; width:100%; border-radius:4px; margin-top:5px;">+ Adicionar</button></div>
+            <button class="btn-save-edit" onclick="saveEdit()">SALVAR ALTERAÇÕES</button>
+        </div>
+    </div>
+
+    <div id="menu-overlay" onclick="toggleMenu()"><div class="menu-grid" onclick="event.stopPropagation()"><div class="menu-btn" onclick="navTo('info')">INFO</div><div class="menu-btn" onclick="navTo('atributos')">ATRIBUTOS</div><div class="menu-btn" onclick="navTo('habilidades')">HABILIDADES</div><div class="menu-btn" onclick="navTo('combate')">COMBATE</div><div class="menu-btn" onclick="navTo('pericias')">PERÍCIAS</div><div class="menu-btn" onclick="navTo('oficios')">OFÍCIOS</div><div class="menu-btn" onclick="navTo('equipamentos')">EQUIPAMENTOS</div><div class="menu-btn" onclick="navTo('itens')">INVENTÁRIO</div></div></div>
+    <div id="settings-modal"><h3>Tema</h3><div id="color-opts"><span class="color-dot" style="background:#d4af37" onclick="setTheme('#d4af37')"></span><span class="color-dot" style="background:#e74c3c" onclick="setTheme('#e74c3c')"></span><span class="color-dot" style="background:#3498db" onclick="setTheme('#3498db')"></span></div><p>Imagem URL</p><input type="text" id="img-input" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px;" onchange="setBg(this.value)"><button onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top:10px; width:100%; padding:10px;">Fechar</button></div>
+
+    <script>
+        // --- DADOS COMPLETOS v11 ---
+        let chars = JSON.parse(localStorage.getItem('rpg_sys_v11_full') || '[]');
+        let activeId = null;
+        let attrEditMode = false;
+        let editingList = '', editingIndex = -1;
+        let rollHistory = []; // Memória temporária de rolagens
+
+        // DBs COMPLETOS
+        const classesDB = [
+            {n:'Mago', desc:'Magia Básica. +25 MP, -15 HP.', s:{mp:25, hp:-15}},
+            {n:'Cavaleiro', desc:'Combate e Honra. +25 HP.', s:{hp:25}},
+            {n:'Cavaleiro Sagrado', desc:'Usa Cosmo. +35 HP, +25 COS.', s:{hp:35, cos:25}},
+            {n:'Bárbaro', desc:'Tanque. +10 HP, -15 MP, +5 CK.', s:{hp:10, mp:-15, ck:5}},
+            {n:'Samurai', desc:'Espadas. +15 KI, -10 MP.', s:{ki:15, mp:-10}},
+            {n:'Monje', desc:'Punhos. +10 HP, +10 CK, +5 COS.', s:{hp:10, ck:10, cos:5}},
+            {n:'Elegante', desc:'Converte MP em dano. +15 MP.', s:{mp:15}},
+            {n:'Ceifeiro', desc:'Pelas Sombras. +25 HP, +15 MP.', s:{hp:25, mp:15}},
+            {n:'Bruxo', desc:'Retroceder Mana. +30 MP, -10 HP.', s:{mp:30, hp:-10}},
+            {n:'Arcano', desc:'Luz Divina. +25 HP, +10 MP.', s:{hp:25, mp:10}},
+            {n:'Obscuro', desc:'Demônio. +15 HP, +15 MP.', s:{hp:15, mp:15}},
+            {n:'Fabricante', desc:'Cria Itens. +10 HP.', s:{hp:10}},
+            {n:'Contratante Espiritual', desc:'Contratos. +35 MP.', s:{mp:35}},
+            {n:'Caçador Apurado', desc:'Tiro Crítico.', s:{}},
+            {n:'Cantor Andarilho', desc:'Música e Buffs. +40 CK.', s:{ck:40}}
+        ];
+        
+        const oficiosDB = [
+            'Ferreiro (FOR)', 'Armeiro (FOR)', 'Lenhador (FOR)', 'Marceneiro (FOR)', 'Minerador (FOR)',
+            'Alfaiate (AGI)', 'Caçador (AGI)', 'Ladrão (AGI)', 'Joalheiro (AGI)',
+            'Artesãos (INT)', 'Cozinheiro (INT)', 'Alquimista (INT)', 'Herbalista (INT)', 'Aluno (INT)', 'Mecânica (INT)',
+            'Nobre (AUR)', 'Professor (AUR)', 'Mercador (AUR)'
+        ];
+
+        const periciasDB = [
+            'Ciências (INT)', 'Medicina (INT)', 'Cosmologia (INT)', 'Tática (INT)', 'Conhecimento (INT)', 'Memória (INT)', 'Sobrevivência (INT)', 'Misticismo (INT)',
+            'Fortitude (VIG)', 'Meditação (VIG)', 'Atletismo (VIG)', 'Descanso (VIG)', 'Vontade (VIG)',
+            'Poder (AUR)', 'Percepção (AUR)', 'Ocultar-se (AUR)', 'Intimidar (AUR)', 'Seduzir (AUR)',
+            'Força (FOR)', 'Arremessar (FOR)', 'Escalar (FOR)', 'Bloquear (FOR)', 'Luta (FOR/AGI)',
+            'Iniciativa (AGI)', 'Acrobacia (AGI)', 'Dança (AGI)', 'Roubo (AGI)', 'Pilotagem (AGI)', 'Furtividade (AGI)', 'Reflexos (AGI)', 'Pontaria (AGI)'
+        ];
+
+        const generalItemsDB = { habilidades: ['Ataque Básico', 'Esquiva', 'Cura Menor', 'Bola de Fogo'], equipamentos: ['Espada Curta', 'Armadura de Couro', 'Poção de Cura'], itens: ['Tocha', 'Corda', 'Rações'] };
+
+        window.onload = () => { renderHome(); setupWizard(); };
+
+        // --- CORE FUNCTIONS ---
+        function save() { localStorage.setItem('rpg_sys_v11_full', JSON.stringify(chars)); }
+        function getActive() { return chars.find(x => x.id === activeId); }
+
+        // --- DICE ENGINE ---
+        function rollDice(notation) {
+            if(!notation) return {total:0, details:[]};
+            let parts = notation.toLowerCase().split('+'); let total = 0, details = [];
+            parts.forEach(p => {
+                p = p.trim();
+                if(p.includes('d')) {
+                    let [n, s] = p.split('d'); n = parseInt(n)||1; s = parseInt(s);
+                    let subRes = []; for(let i=0; i<n; i++) { let r = Math.floor(Math.random()*s)+1; subRes.push(r); total += r; }
+                    details.push(`${n}d${s}: [${subRes.join(', ')}]`);
+                } else if(!isNaN(parseInt(p))) { let v = parseInt(p); total += v; details.push(`Mod: ${v}`); }
+            });
+            return { total, details };
+        }
+
+        // --- REGISTER ROLL (HISTORY & POPUP) ---
+        function registerRoll(title, total, details) {
+            const rollData = { id: Date.now(), title, total, details, time: new Date().toLocaleTimeString() };
+            rollHistory.push(rollData);
+            updateHistoryPanel();
+            setTimeout(() => { rollHistory = rollHistory.filter(r => r.id !== rollData.id); updateHistoryPanel(); }, 600000); // 10 min
+            showToast(rollData);
+        }
+
+        function showToast(data) {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div'); el.className = 'roll-toast';
+            el.innerHTML = `<div class="toast-title">${data.title}</div><div class="toast-val">${data.total}</div><div class="toast-det">${data.details}</div>`;
+            container.appendChild(el);
+            setTimeout(() => { el.style.animation = 'fadeOut 0.5s ease forwards'; setTimeout(() => el.remove(), 500); }, 6000);
+        }
+
+        function toggleHistory() { const p = document.getElementById('history-panel'); p.style.display = (p.style.display === 'flex') ? 'none' : 'flex'; }
+        function updateHistoryPanel() {
+            const p = document.getElementById('history-panel'); p.innerHTML = '';
+            if(rollHistory.length === 0) { p.innerHTML = '<div style="color:#666; font-size:0.8rem; text-align:center;">Sem histórico recente.</div>'; return; }
+            rollHistory.forEach(r => { p.innerHTML += `<div class="hist-item"><span class="hist-time">${r.time}</span><div style="font-size:0.8rem; color:#d4af37; text-transform:uppercase;">${r.title}</div><div class="hist-res">Total: <span class="hist-total">${r.total}</span></div><div style="font-size:0.7rem; color:#666;">${r.details}</div></div>`; });
+        }
+
+        // --- TRIGGER ROLLS ---
+        function rollAttr(name, val) {
+            let res = []; for(let i=0; i<val; i++) res.push(Math.floor(Math.random()*10)+1);
+            registerRoll(name.toUpperCase(), "---", res.map(x=>`[${x}]`).join(' '));
+        }
+
+        function rollItem(type, index) {
+            const item = getActive().lists[type][index];
+            const manualMod = parseInt(item.mod) || 0;
+            
+            if(type === 'pericias' || type === 'oficios') {
+                let mod = 0; let attrName = "---";
+                const match = item.n.match(/\((.*?)\)/);
+                if(match) { attrName = match[1].toLowerCase(); if(getActive().attrs[attrName]) mod = getActive().attrs[attrName]; }
+                let d10 = Math.floor(Math.random()*10)+1;
+                let total = d10 + mod + manualMod;
+                registerRoll(item.n, total, `1d10(${d10}) + ${attrName.toUpperCase()}(${mod}) + Mod(${manualMod})`);
+                return;
+            }
+            if(item.dmg) {
+                let total = 0; let details = [];
+                let r1 = rollDice(item.dmg); total += r1.total; details.push(`${item.dmg}: ${r1.total}`);
+                if(item.extraDmg) { item.extraDmg.forEach(ex => { let r2 = rollDice(ex.dice); total += r2.total; details.push(`${ex.type} (${ex.dice}): ${r2.total}`); }); }
+                if(manualMod !== 0) { total += manualMod; details.push(`Mod: ${manualMod}`); }
+                registerRoll("DANO TOTAL", total, details.join(' + '));
+                return;
+            }
+            alert("Sem dados. Edite o item.");
+        }
+
+        // --- HOME & WIZARD ---
+        function renderHome() {
+            const grid = document.getElementById('home-list'); grid.innerHTML = '';
+            chars.forEach(c => {
+                const el = document.createElement('div'); el.className = 'home-card';
+                if(c.bg) el.style.backgroundImage = `url('${c.bg}')`; el.style.borderColor = c.color || '#333';
+                el.innerHTML = `<div class="hc-content"><button style="position:absolute; right:0; top:0; background:none; border:none; color:red; cursor:pointer;" onclick="delChar(${c.id}, event)">×</button><span class="hc-class" style="color:${c.color||'#d4af37'}">${c.classe}</span><div class="hc-name">${c.name}</div><div style="font-size:0.8rem; color:#ccc;">${c.player}</div><button class="btn-access" onclick="openSheet(${c.id})">Acessar</button></div>`;
+                grid.appendChild(el);
+            });
+        }
+        function delChar(id, e) { e.stopPropagation(); if(confirm("Apagar?")) { chars = chars.filter(c=>c.id!==id); save(); renderHome(); } }
+
+        let wizStep=1, tempChar={classe:null,oficios:[],pericias:[]};
+        function startWizard(){document.getElementById('home-screen').style.display='none';document.getElementById('wizard-screen').style.display='flex';wizStep=1;updateWizUI();setupWizard();}
+        function setupWizard(){
+            const cc=document.getElementById('classes-container'); cc.innerHTML=''; classesDB.forEach((c,i)=>{ cc.innerHTML+=`<div class="cls-card" id="cls-${i}"><div class="cls-header" onclick="this.nextElementSibling.classList.toggle('open')"><span>${c.n}</span><span>+</span></div><div class="cls-body"><button class="btn-pick-cls" onclick="pickCls('${c.n}',${i})">Selecionar</button></div></div>`});
+            renderSelList(oficiosDB,'oficios-container','oficios'); renderSelList(periciasDB,'pericias-container','pericias');
+        }
+        function pickCls(n,i){ tempChar.classe=n; document.querySelectorAll('.cls-card').forEach(x=>x.classList.remove('selected')); document.getElementById(`cls-${i}`).classList.add('selected');}
+        function renderSelList(db,id,k){const c=document.getElementById(id);c.innerHTML='';db.forEach(i=>{c.innerHTML+=`<div class="list-sel-item" onclick="this.classList.toggle('active'); toggleArr('${k}','${i}')"><span>${i}</span><div class="check-circle"></div></div>`})}
+        function toggleArr(k,v){if(tempChar[k].includes(v))tempChar[k]=tempChar[k].filter(x=>x!==v);else tempChar[k].push(v);}
+        function updateWizUI(){document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));document.getElementById(`step-${wizStep}`).classList.add('active');}
+        function nextStep(){ if(wizStep<5){wizStep++;updateWizUI();}else finishChar(); }
+        function finishChar(){
+            const newChar={id:Date.now(), name:document.getElementById('w-name').value, player:document.getElementById('w-player').value, race:document.getElementById('w-race').value, hist:document.getElementById('w-hist').value, age:document.getElementById('w-age').value, classe:tempChar.classe, stats:{hp:{c:25,b:0},mp:{c:15,b:0},cos:{c:0,b:0},ki:{c:0,b:0},ck:{c:0,b:0}}, attrs:{for:parseInt(document.getElementById('w-for').value)||1, agi:parseInt(document.getElementById('w-agi').value)||1, int:parseInt(document.getElementById('w-int').value)||1, vig:parseInt(document.getElementById('w-vig').value)||1, aur:parseInt(document.getElementById('w-aur').value)||1}, lists:{habilidades:[],pericias:tempChar.pericias.map(p=>({n:p,fav:false})),oficios:tempChar.oficios.map(o=>({n:o,fav:false})),equipamentos:[],itens:[]}, color:'#d4af37'};
+            calcMax(newChar); ['hp','mp','cos','ki','ck'].forEach(k=>newChar.stats[k].c=newChar.calculatedMax[k]);
+            chars.push(newChar); save(); document.getElementById('wizard-screen').style.display='none'; document.getElementById('home-screen').style.display='flex'; renderHome();
+        }
+        function closeWizard() { document.getElementById('wizard-screen').style.display='none'; document.getElementById('home-screen').style.display='flex'; }
+
+        // --- SHEET LOGIC ---
+        function calcMax(c) {
+            const cls=classesDB.find(x=>x.n===c.classe)||{s:{}}; const cm=cls.s;
+            c.calculatedMax={
+                hp:25+(c.attrs.vig*10)+(cm.hp||0)+(c.stats.hp.b||0), mp:15+(c.attrs.int*20)+(cm.mp||0)+(c.stats.mp.b||0),
+                cos:(c.attrs.int*10)+(c.attrs.aur*10)+(cm.cos||0)+(c.stats.cos.b||0), ki:(c.attrs.for*10)+(cm.ki||0)+(c.stats.ki.b||0), ck:(c.attrs.aur*10)+(cm.ck||0)+(c.stats.ck.b||0)
+            };
+        }
+        function openSheet(id){
+            activeId=id; const c=getActive(); calcMax(c);
+            document.getElementById('sh-char-name').innerText=c.name; document.getElementById('sh-player-race').innerText=c.player;
+            document.getElementById('sheet-screen').style.display='flex'; navTo('info');
+            document.getElementById('sh-hist').innerText=c.hist; document.getElementById('sh-class').innerText=c.classe; document.getElementById('sh-origem').innerText=c.race;
+            renderAttrs(); ['habilidades','pericias','oficios','equipamentos','itens'].forEach(t=>renderList(t)); renderFavs();
+        }
+        function closeSheet(){document.getElementById('sheet-screen').style.display='none';renderHome();}
+        function navTo(v){document.querySelectorAll('.sheet-view').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.getElementById('menu-overlay').style.display='none';}
+        function toggleMenu(){const m=document.getElementById('menu-overlay');m.style.display=(m.style.display==='flex')?'none':'flex';}
+
+        function toggleAttrEdit() { attrEditMode = !attrEditMode; document.getElementById('btn-edit-attr').innerText = attrEditMode ? '💾' : '✏️'; if(!attrEditMode) { calcMax(getActive()); save(); } renderAttrs(); }
+        function renderAttrs() {
+            const c = getActive(); calcMax(c); const baseDiv = document.getElementById('base-attrs'); baseDiv.innerHTML = '';
+            Object.entries(c.attrs).forEach(([k,v]) => {
+                if(attrEditMode) baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #d4af37; border-radius:5px;"><input type="number" value="${v}" style="width:100%; bg:transparent; color:#fff; border:none; text-align:center; font-size:1.2rem;" onchange="updateAttr('${k}',this.value)"><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
+                else baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; cursor:pointer;" onclick="rollAttr('${k}', ${v})"><div style="font-size:1.2rem; font-weight:bold;">${v}</div><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
+            });
+            const barsDiv = document.getElementById('bars-container'); barsDiv.innerHTML = '';
+            ['hp','mp','cos','ki','ck'].forEach(k => { const max = c.calculatedMax[k]; if(max>0) { const curr = c.stats[k].c; const pct = Math.min(100, Math.max(0,(curr/max)*100)); barsDiv.innerHTML += `<div class="status-bar-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem;"><b>${k.toUpperCase()}</b><span>${curr}/${max}</span></div><div class="progress-track"><div class="progress-fill bg-${k}" style="width:${pct}%"></div></div><div class="bar-controls"><button class="bar-btn" onclick="modMax('${k}',-10)">-10 Max</button><button class="bar-btn" onclick="modCurr('${k}',-10)">-10</button><input type="number" class="bar-input" value="${curr}" onchange="setCurr('${k}',this.value)"><button class="bar-btn" onclick="modCurr('${k}',10)">+10</button><button class="bar-btn" onclick="modMax('${k}',10)">+10 Max</button></div></div>`; }});
+        }
+        function updateAttr(k,v){ getActive().attrs[k]=parseInt(v); }
+        function modCurr(t,v){ getActive().stats[t].c+=v; save(); renderAttrs(); }
+        function setCurr(t,v){ getActive().stats[t].c=parseInt(v); save(); renderAttrs(); }
+        function modMax(t,v){ getActive().stats[t].b+=v; save(); renderAttrs(); }
+
+        function renderList(type) {
+            const c = getActive(); const div = document.getElementById('list-'+type); div.innerHTML = '';
+            c.lists[type].forEach((item, i) => {
+                const hexIcon = `<svg class="icon-hex" viewBox="0 0 100 100" onclick="event.stopPropagation(); rollItem('${type}', ${i})"><polygon points="50 3, 100 28, 100 75, 50 100, 3 75, 3 28" /></svg>`;
+                const modVal = item.mod || 0; const sign = modVal >= 0 ? '+' : '';
+                div.innerHTML += `<div class="item-card" onclick="this.classList.toggle('open')"><div class="card-top">${hexIcon}<b>${item.n}</b><input type="text" class="mod-input" value="${sign}${modVal}" onclick="event.stopPropagation()" onchange="updateItemMod('${type}', ${i}, this.value)"></div><div class="item-details"><button class="btn-card-action btn-remove" onclick="removeItem(event,'${type}',${i})">Remover</button><button class="btn-card-action btn-edit" onclick="openEditModal(event,'${type}',${i})">Editar</button><button class="btn-card-action btn-fav ${item.fav?'active':''}" onclick="togFav(event,'${type}',${i})">★</button><p style="font-size:0.8rem; color:#888; margin-top:5px; width:100%;">${item.desc||''}</p></div></div>`;
+            });
+        }
+        function updateItemMod(type, i, val) { getActive().lists[type][i].mod = parseInt(val); save(); }
+        function removeItem(e,t,i){ e.stopPropagation(); if(confirm("Remover?")){ getActive().lists[t].splice(i,1); save(); renderList(t); renderFavs(); }}
+        function renderFavs(){ const c=getActive(); const div=document.getElementById('list-favs'); div.innerHTML=''; ['habilidades','pericias','oficios','equipamentos','itens'].forEach(t=>{ c.lists[t].forEach((i,idx)=>{ if(i.fav){ const hexIcon = `<svg class="icon-hex" viewBox="0 0 100 100" onclick="event.stopPropagation(); rollItem('${t}', ${idx})"><polygon points="50 3, 100 28, 100 75, 50 100, 3 75, 3 28" /></svg>`; div.innerHTML+=`<div class="item-card" style="border-color:#d4af37"><div class="card-top">${hexIcon}<b>${i.n}</b></div><small>${t.toUpperCase()}</small></div>`; }}); }); }
+        function togFav(e,t,i){ e.stopPropagation(); const c=getActive(); c.lists[t][i].fav=!c.lists[t][i].fav; save(); renderList(t); renderFavs(); }
+
+        function openEditModal(e, type, index) { e.stopPropagation(); editingList = type; editingIndex = index; const item = getActive().lists[type][index]; document.getElementById('ed-name').value = item.n || ''; document.getElementById('ed-dmg').value = item.dmg || ''; document.getElementById('ed-crit').value = item.crit || ''; document.getElementById('ed-type').value = item.type || ''; document.getElementById('ed-range').value = item.range || ''; document.getElementById('ed-skill').value = item.skill || ''; document.getElementById('ed-attr').value = item.attr || ''; document.getElementById('ed-img').value = item.img || ''; document.getElementById('ed-notes').value = item.desc || ''; const extraContainer = document.getElementById('extra-dmg-list'); extraContainer.innerHTML = ''; if(item.extraDmg) { item.extraDmg.forEach(ex => { const row = document.createElement('div'); row.className='extra-dmg-row'; row.innerHTML = `<input type="text" class="edit-input" placeholder="Dado" value="${ex.dice}"><input type="text" class="edit-input" placeholder="Tipo" value="${ex.type}"><button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>`; extraContainer.appendChild(row); }); } document.getElementById('edit-modal').style.display = 'flex'; }
+        function addExtraDmgField() { const row = document.createElement('div'); row.className='extra-dmg-row'; row.innerHTML = `<input type="text" class="edit-input" placeholder="Dado"><input type="text" class="edit-input" placeholder="Tipo"><button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>`; document.getElementById('extra-dmg-list').appendChild(row); }
+        function saveEdit() { const item = getActive().lists[editingList][editingIndex]; item.n = document.getElementById('ed-name').value; item.dmg = document.getElementById('ed-dmg').value; item.crit = document.getElementById('ed-crit').value; item.type = document.getElementById('ed-type').value; item.range = document.getElementById('ed-range').value; item.skill = document.getElementById('ed-skill').value; item.attr = document.getElementById('ed-attr').value; item.img = document.getElementById('ed-img').value; item.desc = document.getElementById('ed-notes').value; item.extraDmg = []; document.querySelectorAll('#extra-dmg-list .extra-dmg-row').forEach(row => { const inputs = row.querySelectorAll('input'); if(inputs[0].value) item.extraDmg.push({dice: inputs[0].value, type: inputs[1].value}); }); save(); renderList(editingList); document.getElementById('edit-modal').style.display = 'none'; }
+        function openAddModal(type){currentAddType=type;document.getElementById('add-modal').style.display='flex';const l=document.getElementById('add-list-content');l.innerHTML='';(type==='pericias'?periciasDB:type==='oficios'?oficiosDB:generalItemsDB[type]||[]).forEach(i=>l.innerHTML+=`<div class="add-item-row" onclick="addFromList('${i}')">${i}</div>`);}
+        function addFromList(n){getActive().lists[currentAddType].push({n:n,fav:false});save();renderList(currentAddType);document.getElementById('add-modal').style.display='none';}
+        function addCustomItem(){const n=prompt("Nome:");if(n){getActive().lists[currentAddType].push({n:n,fav:false});save();renderList(currentAddType);document.getElementById('add-modal').style.display='none';} }
+        function openSettings(){document.getElementById('settings-modal').style.display='block';}
+        function setTheme(c){getActive().color=c;save();renderHome();}
+        function setBg(u){getActive().bg=u;save();renderHome();}
+        function shareChar(){alert("Link copiado!");}
+
+    </script>
+</body>
+</html>

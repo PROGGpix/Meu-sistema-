@@ -10,6 +10,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
+    /* Campo de edição dos Atributos */
+.attr-edit-input {
+    width: 100%;
+    background: transparent !important; /* Remove o fundo branco */
+    color: #fff !important;             /* Garante texto branco */
+    border: none;
+    border-bottom: 2px solid var(--neon-purple); /* Uma linha roxa embaixo pra ficar estiloso */
+    text-align: center;
+    font-size: 1.8rem;                  /* Número bem grande */
+    font-weight: bold;
+    outline: none;                      /* Tira a borda azul padrão */
+    padding: 5px;
+}
+
     /* Nova classe para o botão de dado (imagem) */
 .dice-img {
     width: 32px;
@@ -350,6 +364,35 @@
     line-height: 1.5;
     border-top: 1px solid #222;
 }
+/* Foto do Item (Fica na esquerda) */
+.item-thumb {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;       /* Corta a imagem para não esticar */
+    border-radius: 8px;      /* Bordas arredondadas */
+    border: 1px solid #333;
+    flex-shrink: 0;          /* Não deixa a imagem ser esmagada */
+}
+
+/* Botão de Rolar (Fica na direita) */
+.btn-roll-dice {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+}
+
+/* Imagem do Dado dentro do botão */
+.roll-icon {
+    width: 30px;
+    height: 30px;
+    filter: drop-shadow(0 0 2px var(--neon-purple));
+    transition: 0.2s;
+}
+.roll-icon:hover { transform: rotate(180deg) scale(1.1); }
 
     </style>
 </head>
@@ -482,19 +525,49 @@
 
     <div id="add-modal"><div class="add-content"><div class="add-header"><h3 style="margin:0;" id="add-title">Adicionar</h3><button onclick="document.getElementById('add-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div><div id="add-list-content" class="add-list"></div><button class="btn-custom-add" onclick="addCustomItem()">Criar Personalizado</button></div></div>
 
-    <div id="edit-modal">
+     <div id="edit-modal">
         <div class="edit-container">
-            <div class="edit-header"><h3 style="margin:0; color:#b026ff;">EDITAR</h3><button onclick="document.getElementById('edit-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div>
-            <label class="edit-label">Nome</label><input type="text" id="ed-name" class="edit-input">
-            <div class="grid-2"><div><label class="edit-label">Dano</label><input type="text" id="ed-dmg" class="edit-input"></div><div><label class="edit-label">Crítico</label><input type="text" id="ed-crit" class="edit-input"></div></div>
-            <div class="grid-2"><div><label class="edit-label">Tipo</label><input type="text" id="ed-type" class="edit-input"></div><div><label class="edit-label">Alcance</label><input type="text" id="ed-range" class="edit-input"></div></div>
-            <div class="grid-2"><div><label class="edit-label">Perícia</label><input type="text" id="ed-skill" class="edit-input"></div><div><label class="edit-label">Atributo</label><input type="text" id="ed-attr" class="edit-input"></div></div>
-            <label class="edit-label">Imagem URL</label><input type="text" id="ed-img" class="edit-input">
-            <label class="edit-label">Notas</label><textarea id="ed-notes" class="edit-input" rows="3"></textarea>
-            <div style="margin-top:20px; border-top:1px dashed #333; padding-top:10px;"><label class="edit-label" style="color:#b026ff; font-size:0.9rem;">DANO EXTRA</label><div id="extra-dmg-list"></div><button onclick="addExtraDmgField()" style="background:#222; border:1px solid #444; color:#ccc; padding:8px; width:100%; border-radius:4px; margin-top:5px;">+ Adicionar</button></div>
+            <div class="edit-header">
+                <h3 style="margin:0; color:#b026ff;">EDITAR ITEM</h3>
+                <button onclick="document.getElementById('edit-modal').style.display='none'" style="background:none; border:none;"
+                </button>
+            </div>
+            
+            <label class="edit-label">Nome</label>
+            <input type="text" id="ed-name" class="edit-input">
+            
+            <div class="grid-2">
+                <div><label class="edit-label">Dano / Efeito</label><input type="text" id="ed-dmg" class="edit-input"></div>
+                <div><label class="edit-label">Crítico</label><input type="text" id="ed-crit" class="edit-input"></div>
+            </div>
+            
+            <div class="grid-2">
+                <div><label class="edit-label">Tipo</label><input type="text" id="ed-type" class="edit-input"></div>
+                <div><label class="edit-label">Alcance</label><input type="text" id="ed-range" class="edit-input"></div>
+            </div>
+
+            <label class="edit-label" style="color:#b026ff; margin-top:15px;">IMAGEM / ÍCONE</label>
+            
+            <label for="item-upload-input" id="lbl-item-upload" style="display:block; width:100%; padding:12px; background:#222; border:1px dashed #555; color:#ccc; text-align:center; cursor:pointer; border-radius:6px; margin-bottom:5px;">
+                📁 Escolher da Galeria
+            </label>
+            <input type="file" id="item-upload-input" accept="image/*" style="display:none;" onchange="uploadImagemItem(this)">
+
+            <input type="text" id="ed-img" class="edit-input" placeholder="...ou cole o Link aqui" style="font-size:0.7rem; color:#888;">
+
+            <label class="edit-label">Notas / Descrição</label>
+            <textarea id="ed-notes" class="edit-input" rows="3"></textarea>
+            
+            <div style="margin-top:20px; border-top:1px dashed #333; padding-top:10px;">
+                <label class="edit-label" style="color:#b026ff; font-size:0.9rem;">DADOS EXTRAS</label>
+                <div id="extra-dmg-list"></div>
+                <button onclick="addExtraDmgField()" style="background:#222; border:1px solid #444; color:#ccc; padding:8px; width:100%; border-radius:4px; margin-top:5px;">+ Adicionar Dado</button>
+            </div>
+            
             <button class="btn-save-edit" onclick="saveEdit()">SALVAR ALTERAÇÕES</button>
         </div>
     </div>
+
 
     <div id="menu-overlay" onclick="toggleMenu()"><div class="menu-grid" onclick="event.stopPropagation()">
     
@@ -844,49 +917,63 @@ const MEUS_ICONES = {
 }
 
         function renderAttrs() {
-            const c = getActive(); calcMax(c); 
-            // Level / XP
-            document.getElementById('inp-level').value = c.stats.level || 1;
-            document.getElementById('inp-xp').value = c.stats.xp || 0;
+    const c = getActive(); 
+    calcMax(c); 
+    
+    // Atualiza Level e XP
+    document.getElementById('inp-level').value = c.stats.level || 1;
+    document.getElementById('inp-xp').value = c.stats.xp || 0;
 
-            const baseDiv = document.getElementById('base-attrs'); baseDiv.innerHTML = '';
-            Object.entries(c.attrs).forEach(([k,v]) => {
-                if(attrEditMode) baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #b026ff; border-radius:5px;"><input type="number" value="${v}" style="width:100%; bg:transparent; color:#fff; border:none; text-align:center; font-size:1.2rem;" onchange="updateAttr('${k}',this.value)"><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
-                else baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; cursor:pointer;" onclick="rollAttr('${k}', ${v})"><div style="font-size:1.2rem; font-weight:bold;">${v}</div><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
-            });
-            
-            const barsDiv = document.getElementById('bars-container'); barsDiv.innerHTML = '';
-            ['hp','mp','cos','ki','ck'].forEach(k => { const max = c.calculatedMax[k]; if(max>0) { const curr = c.stats[k].c; const pct = Math.min(100, Math.max(0,(curr/max)*100)); barsDiv.innerHTML += `<div class="status-bar-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem;"><b>${k.toUpperCase()}</b><span>${curr}/${max}</span></div><div class="progress-track"><div class="progress-fill bg-${k}" style="width:${pct}%"></div></div><div class="bar-controls"><button class="bar-btn" onclick="modMax('${k}',-10)">-10 Max</button><button class="bar-btn" onclick="modCurr('${k}',-10)">-10</button><input type="number" class="bar-input" value="${curr}" onchange="setCurr('${k}',this.value)"><button class="bar-btn" onclick="modCurr('${k}',10)">+10</button><button class="bar-btn" onclick="modMax('${k}',10)">+10 Max</button></div></div>`; }});
-            
-            // DEF / RES CARDS
-            document.getElementById('inp-def').value = c.stats.def || 0;
-            document.getElementById('inp-res').value = c.stats.res || 0;
-
-            // Custom Bars
-            const customDiv = document.getElementById('custom-bars-container'); customDiv.innerHTML = '';
-            if(c.customBars) {
-                c.customBars.forEach((b, i) => {
-                    const pct = Math.min(100, Math.max(0, (b.c/b.m)*100));
-                    customDiv.innerHTML += `
-                        <div class="status-bar-container" style="border-color:#555;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
-                                <b>${b.n}</b>
-                                <div>
-                                    <span style="margin-right:10px;">${b.c}/${b.m}</span>
-                                    <button style="background:none; border:none; color:#bd1e1e; cursor:pointer;" onclick="removeCustomBar(${i})">×</button>
-                                </div>
-                            </div>
-                            <div class="progress-track"><div class="progress-fill bg-custom" style="width:${pct}%"></div></div>
-                            <div class="bar-controls">
-                                <button class="bar-btn" onclick="modCustom(${i},-1)">-1</button>
-                                <input type="number" class="bar-input" value="${b.c}" onchange="setCustomCurr(${i},this.value)">
-                                <button class="bar-btn" onclick="modCustom(${i},1)">+1</button>
-                                <input type="number" class="bar-input" value="${b.m}" style="border-color:#666;" onchange="setCustomMax(${i},this.value)">
-                            </div>
-                        </div>`;
-                });
-            }
+    const baseDiv = document.getElementById('base-attrs'); 
+    baseDiv.innerHTML = '';
+    
+    Object.entries(c.attrs).forEach(([k,v]) => {
+        if(attrEditMode) {
+            // MODO EDIÇÃO (Usando a nova classe que corrige o fundo branco)
+            baseDiv.innerHTML += `
+                <div style="background:#111; padding:10px; border:1px solid var(--neon-purple); border-radius:8px;">
+                    <input type="number" value="${v}" class="attr-edit-input" onchange="updateAttr('${k}',this.value)">
+                    <div style="font-size:0.7rem; color:#888; margin-top:5px; font-weight:bold;">${k.toUpperCase()}</div>
+                </div>`;
+        } else {
+            // MODO VISUALIZAÇÃO (Normal)
+            baseDiv.innerHTML += `
+                <div style="background:#111; padding:10px; border:1px solid #333; border-radius:8px; cursor:pointer; transition:0.2s;" onclick="rollAttr('${k}', ${v})">
+                    <div style="font-size:1.8rem; font-weight:bold; color:#fff;">${v}</div>
+                    <div style="font-size:0.7rem; color:#888; font-weight:bold;">${k.toUpperCase()}</div>
+                </div>`;
         }
+    });          
+            const barsDiv = document.getElementById('bars-container'); barsDiv.innerHTML = '';
+    ['hp','mp','cos','ki','ck'].forEach(k => { const max = c.calculatedMax[k]; if(max>0) { const curr = c.stats[k].c; const pct = Math.min(100, Math.max(0,(curr/max)*100)); barsDiv.innerHTML += `<div class="status-bar-container"><div style="display:flex; justify-content:space-between; font-size:0.8rem;"><b>${k.toUpperCase()}</b><span>${curr}/${max}</span></div><div class="progress-track"><div class="progress-fill bg-${k}" style="width:${pct}%"></div></div><div class="bar-controls"><button class="bar-btn" onclick="modMax('${k}',-10)">-10 Max</button><button class="bar-btn" onclick="modCurr('${k}',-10)">-10</button><input type="number" class="bar-input" value="${curr}" onchange="setCurr('${k}',this.value)"><button class="bar-btn" onclick="modCurr('${k}',10)">+10</button><button class="bar-btn" onclick="modMax('${k}',10)">+10 Max</button></div></div>`; }});
+    
+    document.getElementById('inp-def').value = c.stats.def || 0;
+    document.getElementById('inp-res').value = c.stats.res || 0;
+
+    const customDiv = document.getElementById('custom-bars-container'); customDiv.innerHTML = '';
+    if(c.customBars) {
+        c.customBars.forEach((b, i) => {
+            const pct = Math.min(100, Math.max(0, (b.c/b.m)*100));
+            customDiv.innerHTML += `
+                <div class="status-bar-container" style="border-color:#555;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                        <b>${b.n}</b>
+                        <div>
+                            <span style="margin-right:10px;">${b.c}/${b.m}</span>
+                            <button style="background:none; border:none; color:#bd1e1e; cursor:pointer;" onclick="removeCustomBar(${i})">×</button>
+                        </div>
+                    </div>
+                    <div class="progress-track"><div class="progress-fill bg-custom" style="width:${pct}%"></div></div>
+                    <div class="bar-controls">
+                        <button class="bar-btn" onclick="modCustom(${i},-1)">-1</button>
+                        <input type="number" class="bar-input" value="${b.c}" onchange="setCustomCurr(${i},this.value)">
+                        <button class="bar-btn" onclick="modCustom(${i},1)">+1</button>
+                        <input type="number" class="bar-input" value="${b.m}" style="border-color:#666;" onchange="setCustomMax(${i},this.value)">
+                    </div>
+                </div>`;
+        });
+    }
+}
         function updateAttr(k,v){ getActive().attrs[k]=parseInt(v); }
         function modCurr(t,v){ getActive().stats[t].c+=v; save(); }
         function setCurr(t,v){ getActive().stats[t].c=parseInt(v); save(); }
@@ -921,29 +1008,46 @@ const MEUS_ICONES = {
     div.innerHTML = '';
     
     c.lists[type].forEach((item, i) => {
-        // Mantém a imagem do dado (se você quiser) ou pode voltar pro emoji
-        const hexIcon = `<img src="dado.png" class="dice-img" onclick="event.stopPropagation(); rollItem('${type}', ${i})">`;
         
+        // 1. DEFINIR A IMAGEM DO ITEM (Esquerda)
+        // Se tiver foto, usa ela. Se não, usa um ícone genérico (ex: inventario.png ou dado.png parado)
+        let imgItem = item.img && item.img.length > 5 ? item.img : "dado.png"; // Pode trocar "dado.png" por um placeholder tipo "item_placeholder.png"
+
+        // 2. PREPARAR DADOS
         const modVal = item.mod || 0; 
         const sign = modVal >= 0 ? '+' : '';
-        
-        // VOLTANDO OS BOTÕES PARA TEXTO AQUI EMBAIXO:
+        const starClass = item.fav ? 'fav-active' : 'fav-inactive';
+
+        // 3. MONTAR O CARD
         div.innerHTML += `
         <div class="item-card" onclick="this.classList.toggle('open')">
+            
             <div class="card-top">
-                ${hexIcon}
-                <b style="flex:1; margin-left:10px;">${item.n}</b>
-                <input type="text" class="mod-input" value="${sign}${modVal}" onclick="event.stopPropagation()" onchange="updateItemMod('${type}', ${i}, this.value)">
+                <img src="${imgItem}" class="item-thumb" onclick="expandImage('${imgItem}')">
+
+                <b style="flex:1; margin-left:10px; font-size:0.9rem;">${item.n}</b>
+
+                <div style="display:flex; align-items:center;" onclick="event.stopPropagation()">
+                    
+                    <input type="text" class="mod-input" value="${sign}${modVal}" 
+                           style="margin-right: 5px; width: 30px;" 
+                           onchange="updateItemMod('${type}', ${i}, this.value)"
+                           placeholder="Mod">
+
+                    <button class="btn-roll-dice" onclick="rollItem('${type}', ${i})" title="Rolar">
+                        <img src="dado.png" class="roll-icon">
+                    </button>
+                </div>
             </div>
             
             <div class="item-details">
                 <button class="btn-card-action btn-remove" onclick="removeItem(event,'${type}',${i})">Remover</button>
-                
                 <button class="btn-card-action btn-edit" onclick="openEditModal(event,'${type}',${i})">Editar</button>
-                
                 <button class="btn-card-action btn-fav ${item.fav?'active':''}" onclick="togFav(event,'${type}',${i})">★</button>
                 
-                <p style="font-size:0.8rem; color:#888; margin-top:5px; width:100%;">${item.desc||''}</p>
+                <p style="font-size:0.8rem; color:#888; margin-top:5px; width:100%; border-top:1px solid #222; padding-top:5px;">
+                    ${item.desc||''}
+                </p>
             </div>
         </div>`;
     });
@@ -988,10 +1092,93 @@ const MEUS_ICONES = {
 
         function togFav(e,t,i){ e.stopPropagation(); const c=getActive(); c.lists[t][i].fav=!c.lists[t][i].fav; save(); renderList(t); renderFavs(); }
 
-        function openEditModal(e, type, index) { e.stopPropagation(); editingList = type; editingIndex = index; const item = getActive().lists[type][index]; document.getElementById('ed-name').value = item.n || ''; document.getElementById('ed-dmg').value = item.dmg || ''; document.getElementById('ed-crit').value = item.crit || ''; document.getElementById('ed-type').value = item.type || ''; document.getElementById('ed-range').value = item.range || ''; document.getElementById('ed-skill').value = item.skill || ''; document.getElementById('ed-attr').value = item.attr || ''; document.getElementById('ed-img').value = item.img || ''; document.getElementById('ed-notes').value = item.desc || ''; const extraContainer = document.getElementById('extra-dmg-list'); extraContainer.innerHTML = ''; if(item.extraDmg) { item.extraDmg.forEach(ex => { const row = document.createElement('div'); row.className='extra-dmg-row'; row.innerHTML = `<input type="text" class="edit-input" placeholder="Dado" value="${ex.dice}"><input type="text" class="edit-input" placeholder="Tipo" value="${ex.type}"><button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>`; extraContainer.appendChild(row); }); } document.getElementById('edit-modal').style.display = 'flex'; }
-        function addExtraDmgField() { const row = document.createElement('div'); row.className='extra-dmg-row'; row.innerHTML = `<input type="text" class="edit-input" placeholder="Dado"><input type="text" class="edit-input" placeholder="Tipo"><button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>`; document.getElementById('extra-dmg-list').appendChild(row); }
-        function saveEdit() { const item = getActive().lists[editingList][editingIndex]; item.n = document.getElementById('ed-name').value; item.dmg = document.getElementById('ed-dmg').value; item.crit = document.getElementById('ed-crit').value; item.type = document.getElementById('ed-type').value; item.range = document.getElementById('ed-range').value; item.skill = document.getElementById('ed-skill').value; item.attr = document.getElementById('ed-attr').value; item.img = document.getElementById('ed-img').value; item.desc = document.getElementById('ed-notes').value; item.extraDmg = []; document.querySelectorAll('#extra-dmg-list .extra-dmg-row').forEach(row => { const inputs = row.querySelectorAll('input'); if(inputs[0].value) item.extraDmg.push({dice: inputs[0].value, type: inputs[1].value}); }); save(); renderList(editingList); document.getElementById('edit-modal').style.display = 'none'; }
-        
+        function openEditModal(e, type, index) {
+    e.stopPropagation(); // Impede que o card feche ao clicar no botão
+    
+    // Define o que estamos editando
+    editingList = type; 
+    editingIndex = index; 
+    
+    const item = getActive().lists[type][index];
+    
+    // Preenche os campos normais
+    document.getElementById('ed-name').value = item.n || ''; 
+    document.getElementById('ed-dmg').value = item.dmg || ''; 
+    document.getElementById('ed-crit').value = item.crit || ''; 
+    document.getElementById('ed-type').value = item.type || ''; 
+    document.getElementById('ed-range').value = item.range || ''; 
+    document.getElementById('ed-notes').value = item.desc || ''; 
+    
+    // --- PARTE DA IMAGEM (IMPORTANTE) ---
+    // Preenche o link da imagem (se tiver)
+    document.getElementById('ed-img').value = item.img || '';
+    
+    // Reseta o visual do botão de upload
+    document.getElementById('item-upload-input').value = ""; 
+    document.getElementById('lbl-item-upload').innerText = "📁 Escolher da Galeria";
+    
+    // Limpa e recria os campos de Dano Extra
+    const extraContainer = document.getElementById('extra-dmg-list'); 
+    extraContainer.innerHTML = ''; 
+    
+    if(item.extraDmg) { 
+        item.extraDmg.forEach(ex => { 
+            const row = document.createElement('div'); 
+            row.className='extra-dmg-row'; 
+            row.innerHTML = `
+                <input type="text" class="edit-input" placeholder="Dado" value="${ex.dice}">
+                <input type="text" class="edit-input" placeholder="Tipo" value="${ex.type}">
+                <button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>
+            `; 
+            extraContainer.appendChild(row); 
+        }); 
+    } 
+    
+    // Finalmente, mostra o modal
+    document.getElementById('edit-modal').style.display = 'flex'; 
+}
+
+        function addExtraDmgField() { 
+    const row = document.createElement('div'); 
+    row.className='extra-dmg-row'; 
+    row.innerHTML = `
+        <input type="text" class="edit-input" placeholder="Dado">
+        <input type="text" class="edit-input" placeholder="Tipo">
+        <button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>
+    `; 
+    document.getElementById('extra-dmg-list').appendChild(row); 
+}
+
+       function saveEdit() { 
+    // Pega o item atual
+    const item = getActive().lists[editingList][editingIndex]; 
+    
+    // Salva os valores dos inputs para dentro do item
+    item.n = document.getElementById('ed-name').value; 
+    item.dmg = document.getElementById('ed-dmg').value; 
+    item.crit = document.getElementById('ed-crit').value; 
+    item.type = document.getElementById('ed-type').value; 
+    item.range = document.getElementById('ed-range').value; 
+    item.img = document.getElementById('ed-img').value; // SALVA A IMAGEM
+    item.desc = document.getElementById('ed-notes').value; 
+    
+    // Salva os danos extras
+    item.extraDmg = []; 
+    document.querySelectorAll('#extra-dmg-list .extra-dmg-row').forEach(row => { 
+        const inputs = row.querySelectorAll('input'); 
+        if(inputs[0].value) {
+            item.extraDmg.push({dice: inputs[0].value, type: inputs[1].value}); 
+        }
+    }); 
+    
+    // Salva no banco de dados e atualiza a tela
+    save(); 
+    renderList(editingList); 
+    
+    // Fecha o modal
+    document.getElementById('edit-modal').style.display = 'none'; 
+}
+
         function openAddModal(type){
             currentAddType = type; 
             document.getElementById('add-modal').style.display='flex';
@@ -1226,6 +1413,50 @@ function renderCenarios() {
         `;
     });
 }
+    // --- FUNÇÃO PARA UPLOAD DE IMAGEM DE ITEM ---
+    function uploadImagemItem(input) {
+        if (input.files && input.files[0]) {
+            const arquivo = input.files[0];
+            const lbl = document.getElementById('lbl-item-upload');
+            lbl.innerText = "⌛ Processando...";
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Itens são pequenos, então limitamos a 150px para ficar MUITO leve
+                    const MAX_SIZE = 150; 
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                    } else {
+                        if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Salva no campo de texto (invisível ou visível)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    document.getElementById('ed-img').value = dataUrl;
+                    
+                    // Feedback visual
+                    lbl.innerText = "✅ Imagem Pronta!";
+                    setTimeout(() => lbl.innerText = "📁 Escolher da Galeria", 2000);
+                }
+            }
+            reader.readAsDataURL(arquivo);
+        }
+    }
 
     </script>
 </body>

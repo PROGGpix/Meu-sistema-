@@ -10,19 +10,115 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
     <style>
+    /* Nova classe para o botão de dado (imagem) */
+.dice-img {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: 0.2s;
+    object-fit: contain;
+    filter: drop-shadow(0 0 2px var(--neon-purple));
+    
+    /* ADICIONE ISSO AQUI: */
+    flex-shrink: 0;      /* Impede que o flexbox esmague a imagem */
+    display: block;      /* Garante o comportamento de bloco */
+}
+
+.dice-img:hover {
+    transform: scale(1.15) rotate(0deg); /* Gira um pouquinho ao passar o mouse */
+    filter: drop-shadow(0 0 8px var(--neon-purple)); /* Brilho mais forte */
+}
+
+.dice-img:active {
+    transform: scale(0.9); /* Efeito de clique */
+}
+
+.menu-btn {
+    position: relative; /* OBRIGATÓRIO: Segura a imagem dentro do botão */
+    display: flex;
+    align-items: center; /* Centraliza verticalmente */
+    
+    /* Cria um espaço seguro na esquerda para a imagem */
+    justify-content: flex-start; 
+    padding-left: 70px; /* Se a imagem cortar, aumente esse número */
+    padding-right: 10px;
+    
+    /* Visual do botão */
+    height: 70px; /* Altura fixa */
+    background: rgba(255,255,255,0.05); /* Fundo leve */
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    overflow: hidden; /* Garante que nada saia do botão */
+}
+.btn-icon {
+    position: absolute;        /* "Solta" a imagem para mover livremente */
+    left: -10px;                /* Cola a imagem no canto esquerdo */
+    
+    width: 70px;               /* Ícone bem grande */
+    height: 70px;
+    object-fit: contain;
+    
+    filter: drop-shadow(0 0 5px var(--neon-purple)); /* Brilho neon */
+    opacity: 0.9;              /* Leve transparência para estilo */
+}
+/* --- ESTILO GERAL DO TEXTO --- */
+.btn-text {
+    position: relative;
+    font-size: 0.8rem;
+    font-weight: comic sans;
+    z-index: 5;
+    /* Aqui você não precisa mexer, use os individuais abaixo */
+}
+/* --- AJUSTES INDIVIDUAIS (Mova cada texto aqui) --- */
+/* Use 'left' para mover lados e 'top' para cima/baixo */
+
+.txt-info      { left: 30px; }
+.txt-attrs     { left: 30px; }
+.txt-habs      { left: 30px; font-size: 0.7rem; } /* Ex: diminuir fonte */
+.txt-combate   { left: 30px; } /* Ex: empurrar pra direita */
+.txt-pericias  { left: 30px; }
+.txt-oficios   { left: 30px; }
+.txt-equips    { left: 30px; font-size: 0.7rem; } /* Ex: puxar pra esquerda */
+.txt-inv       { left: 30px; }
+    /* ADICIONE ISTO LOGO NO INÍCIO DO STYLE */
+    :root {
+        --bg-color: #050505;       /* Cor do fundo (Preto quase total) */
+        --neon-purple: #b026ff;    /* O Roxo Neon brilhante */
+        --neon-dim: rgba(176, 38, 255, 0.2); /* Roxo transparente para brilhos */
+    }
+
+    /* CLASSE PARA O EFEITO NOS BOTÕES (Adicione isso também dentro do style) */
+    .btn-glitch {
+        color: #fff !important;
+        border: 1px solid var(--neon-purple) !important;
+        text-shadow: 0 0 5px #000; /* Sombra no texto para leitura */
+        box-shadow: 0 0 10px var(--neon-dim); /* Brilho neon externo */
+        transition: 0.3s;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .btn-glitch:hover {
+        box-shadow: 0 0 20px var(--neon-purple); /* Brilho mais forte ao passar o mouse */
+        transform: scale(1.02);
+    }
+
+    /* ... MANTENHA O RESTO DO SEU CSS ABAIXO ... */
+
         /* --- CORE --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; background-color: #050505; color: #ccc; font-family: 'Montserrat', sans-serif; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         
         /* ICONS */
-        .icon-hex { width: 28px; height: 28px; fill: none; stroke: #d4af37; stroke-width: 2; cursor: pointer; transition: 0.2s; min-width: 28px; }
-        .icon-hex:hover { fill: rgba(212, 175, 55, 0.2); transform: scale(1.1); }
+        .icon-hex { width: 28px; height: 28px; fill: none; stroke: var; stroke-width: 2; cursor: pointer; transition: 0.2s; min-width: 28px; }
+        .icon-hex:hover { fill: var; transform: scale(1.1); }
         .icon-hex:active { transform: scale(0.9); }
 
         /* INPUTS */
         .mod-input { width: 35px; background: transparent; border: 1px solid #333; color: #888; font-size: 0.8rem; text-align: center; border-radius: 4px; padding: 2px; margin-left: auto; }
-        .mod-input:focus { border-color: #d4af37; color: #fff; outline: none; }
+        .mod-input:focus { border-color: #b026ff; color: #fff; outline: none; }
 
         /* --- HOME --- */
         #home-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #050505; z-index: 10; display: flex; flex-direction: column; padding: 20px; padding-top: 60px; overflow-y: auto; }
@@ -33,7 +129,7 @@
         .home-card::before { content:''; position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4)); z-index: 1; }
         .hc-content { position: relative; z-index: 2; }
         .hc-name { font-size: 1.4rem; color: #fff; font-weight: 600; text-transform: uppercase; }
-        .hc-class { font-size: 0.8rem; color: #d4af37; text-transform: uppercase; margin-bottom: 10px; display: block;}
+        .hc-class { font-size: 0.8rem; color: #b026ff; text-transform: uppercase; margin-bottom: 10px; display: block;}
         .btn-access { display: inline-block; margin-top: 15px; padding: 8px 20px; border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 20px; font-size: 0.7rem; text-transform: uppercase; cursor: pointer; background: rgba(0,0,0,0.5); }
 
         /* --- WIZARD --- */
@@ -51,8 +147,8 @@
         .cls-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; text-transform: uppercase; }
         .cls-body { max-height: 0; overflow: hidden; background: #0a0a0a; transition: max-height 0.4s; padding: 0 15px; }
         .cls-body.open { max-height: 400px; padding: 15px; border-top: 1px solid #333; }
-        .btn-pick-cls { width: 100%; padding: 10px; background: #d4af37; color: #000; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .cls-card.selected { border-color: #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        .btn-pick-cls { width: 100%; padding: 10px; background: #b026ff; color: #000; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .cls-card.selected { border-color: #b026ff; box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
         .list-sel-item { display: flex; justify-content: space-between; align-items: center; background: #111; border-bottom: 1px solid #222; padding: 15px; cursor: pointer; }
         .list-sel-item.active { background: #fff; color: #000; }
         .wiz-form input, .wiz-form textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; color: #fff; padding: 10px 0; margin-bottom: 20px; font-family: inherit; font-size: 1rem; outline: none; }
@@ -76,33 +172,33 @@
         /* CARD */
         .item-card { background: #111; border-left: 3px solid #444; padding: 15px; margin-bottom: 10px; position: relative; cursor: pointer; transition: 0.3s; }
         .item-card:hover { background: #161616; }
-        .item-card.open { background: #181818; border-left-color: #d4af37; }
+        .item-card.open { background: #181818; border-left-color: #b026ff; }
         .item-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; opacity: 0; }
         .item-card.open .item-details { max-height: 500px; opacity: 1; margin-top: 15px; border-top: 1px dashed #333; padding-top: 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
         .card-top { display: flex; align-items: center; gap: 15px; } 
         .btn-card-action { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-weight: bold; background: none; border: none; padding: 5px 0; margin-right: 15px; }
-        .btn-remove { color: #bd1e1e; } .btn-edit { color: #d4af37; } .btn-fav { color: #444; font-size:1.2rem; } .btn-fav.active { color: #d4af37; }
+        .btn-remove { color: #bd1e1e; } .btn-edit { color: #b026ff; } .btn-fav { color: #444; font-size:1.2rem; } .btn-fav.active { color: #b026ff; }
         .btn-add-fancy { width: 100%; padding: 15px; background: #111; border: 1px dashed #444; color: #888; margin-top: 10px; cursor: pointer; text-transform: uppercase; border-radius: 8px; transition: 0.2s; }
 
         /* MODALS */
         #edit-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 300; display: none; align-items: flex-end; }
-        .edit-container { background: #111; width: 100%; max-height: 90%; overflow-y: auto; border-radius: 20px 20px 0 0; border-top: 1px solid #d4af37; padding: 25px; animation: slideUp 0.3s; }
+        .edit-container { background: #111; width: 100%; max-height: 90%; overflow-y: auto; border-radius: 20px 20px 0 0; border-top: 1px solid #b026ff; padding: 25px; animation: slideUp 0.3s; }
         .edit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .edit-label { font-size: 0.7rem; color: #666; text-transform: uppercase; display: block; margin-top: 12px; margin-bottom: 5px; }
         .edit-input { width: 100%; background: #080808; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 6px; font-family: inherit; outline: none; }
-        .edit-input:focus { border-color: #d4af37; }
+        .edit-input:focus { border-color: #b026ff; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .extra-dmg-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .btn-del-extra { background: #bd1e1e; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; }
-        .btn-save-edit { width: 100%; background: #d4af37; color: #000; font-weight: bold; border: none; padding: 15px; margin-top: 20px; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        .btn-save-edit { width: 100%; background: #b026ff; color: #000; font-weight: bold; border: none; padding: 15px; margin-top: 20px; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
 
         /* UI ELEMENTS */
-        .fab-menu { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #d4af37; border-radius: 50%; box-shadow: 0 5px 20px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 100; cursor: pointer; }
+        .fab-menu { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: #b026ff; border-radius: 50%; box-shadow: 0 5px 20px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 100; cursor: pointer; }
         .fab-icon span { display: block; width: 8px; height: 8px; background: #000; margin: 2px; float: left; border-radius: 1px; }
         .fab-history { position: fixed; bottom: 100px; right: 35px; width: 50px; height: 50px; background: #222; border: 1px solid #444; border-radius: 50%; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 99; cursor: pointer; transition: 0.2s; color: #888; }
         #toast-container { position: fixed; bottom: 160px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 500; pointer-events: none; }
-        .roll-toast { background: rgba(10, 10, 10, 0.95); border-left: 4px solid #d4af37; padding: 15px; border-radius: 6px; min-width: 250px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: slideInRight 0.3s ease; pointer-events: all; backdrop-filter: blur(5px); }
-        .toast-title { font-size: 0.7rem; color: #d4af37; text-transform: uppercase; letter-spacing: 1px; }
+        .roll-toast { background: rgba(10, 10, 10, 0.95); border-left: 4px solid #b026ff; padding: 15px; border-radius: 6px; min-width: 250px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); animation: slideInRight 0.3s ease; pointer-events: all; backdrop-filter: blur(5px); }
+        .toast-title { font-size: 0.7rem; color: #b026ff; text-transform: uppercase; letter-spacing: 1px; }
         .toast-val { font-size: 1.8rem; font-weight: bold; color: #fff; margin: 5px 0; }
         .toast-det { font-size: 0.75rem; color: #888; font-family: monospace; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
@@ -112,7 +208,7 @@
         .hist-item:last-child { border-bottom: none; }
         .hist-time { font-size: 0.6rem; color: #555; display: block; text-align: right; }
         .hist-res { font-size: 0.9rem; color: #ccc; }
-        .hist-total { color: #d4af37; font-weight: bold; }
+        .hist-total { color: #b026ff; font-weight: bold; }
         #menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 90; display: none; justify-content: center; align-items: flex-end; padding-bottom: 100px; }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 400px; }
         .menu-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 20px; color: #fff; text-align: center; border-radius: 12px; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; }
@@ -122,24 +218,156 @@
         .add-item-row { padding: 15px; border-bottom: 1px solid #222; cursor: pointer; color: #ccc; }
         .btn-custom-add { width: 100%; padding: 15px; background: #fff; border: none; color: #000; font-weight: bold; margin-top: 10px; border-radius: 8px; cursor: pointer; }
         #settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #151515; padding: 20px; border: 1px solid #444; z-index: 200; width: 90%; max-width: 350px; display: none; border-radius: 12px; }
-        .color-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: inline-block; margin: 5px; }
+        .color-dot { 
+    height: 40px; 
+    border-radius: 8px; /* Deixei um pouco quadrado pra ficar moderno */
+    cursor: pointer; 
+    border: 1px solid #333;
+    transition: 0.2s;
+}
+.color-dot:hover {
+    transform: scale(1.1);
+    border-color: #fff;
+}
+/* Classe para os ícones de interface (Editar, Lixo, Voltar) */
+.ui-icon {
+    width: 24px;       /* Tamanho fixo */
+    height: 24px;
+    object-fit: contain;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: 0.2s;
+    /* Se sua imagem for PNG transparente, isso faz ela brilhar roxo */
+    filter: drop-shadow(0 0 2px var(--neon-purple)); 
+}
+
+.ui-icon:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 5px var(--neon-purple));
+}
+
+/* Ícone de Estrela (Favorito) - Precisa de regras especiais para "acender" */
+.fav-icon {
+    width: 20px;
+    height: 20px;
+    filter: grayscale(100%); /* Fica cinza quando desativado */
+    opacity: 0.5;
+}
+.fav-icon.active {
+    filter: drop-shadow(0 0 5px var(--neon-purple)); /* Brilha quando ativo */
+    opacity: 1;
+}
+/* --- ESTILO DA ABA DE NPCS --- */
+.npc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); /* Se ajusta ao celular */
+    gap: 15px;
+    padding-bottom: 20px;
+}
+
+.npc-card {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.npc-card:hover {
+    border-color: var(--neon-purple);
+    transform: translateY(-3px);
+}
+
+.npc-name {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 800;          /* Negrito forte */
+    color: var(--neon-purple); /* Cor do tema */
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px rgba(176, 38, 255, 0.4);
+    letter-spacing: 1px;
+}
+
+.npc-img {
+    width: 100%;
+    height: 180px;            /* Altura fixa pra ficarem iguais */
+    object-fit: cover;        /* Corta a imagem pra caber sem esticar */
+    border-radius: 8px;
+    border: 1px solid #222;
+}
+
+.npc-desc {
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 8px;
+    line-height: 1.4;
+}
+/* --- ESTILO DA ABA CENÁRIOS --- */
+.place-card {
+    background: #0f0f0f;
+    border: 1px solid #222;
+    border-radius: 12px;
+    overflow: hidden; /* Garante que a imagem não saia */
+    margin-bottom: 15px;
+    transition: 0.3s;
+}
+
+.place-card:hover {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 15px rgba(176, 38, 255, 0.2);
+}
+
+.place-header {
+    padding: 10px;
+    text-align: center;
+    background: #151515;
+    border-bottom: 1px solid #222;
+}
+
+.place-name {
+    font-size: 1rem;
+    font-weight: 800;          /* Negrito */
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.place-img {
+    width: 100%;
+    height: 140px;            /* Altura menor para ficar Widescreen */
+    object-fit: cover;
+    display: block;
+    cursor: pointer;          /* Mãozinha para indicar que pode clicar */
+}
+
+.place-desc {
+    padding: 10px;
+    font-size: 0.75rem;
+    color: #999;
+    line-height: 1.5;
+    border-top: 1px solid #222;
+}
+
     </style>
 </head>
 <body>
 
     <div id="home-screen">
-        <h1 style="text-align:center; font-weight:200; letter-spacing:5px; margin-bottom:10px; color:#fff;">SYSTEMA</h1>
-        <button class="btn-new" style="background:transparent; border:1px solid #d4af37; color:#d4af37; margin-bottom:15px;" onclick="openCampModal()">🔗 ENTRAR EM CAMPANHA</button>
+        <h1 style="text-align:center; font-weight:200; letter-spacing:5px; margin-bottom:10px; color:#fff;">BEM VINDO</h1>
+        <button class="btn-new" style="background:transparent; border:1px solid #b026ff; color:#b026ff; margin-bottom:15px;" onclick="openCampModal()">ENTRAR EM CAMPANHA</button>
 
 <div id="camp-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:999; justify-content:center; align-items:center; flex-direction:column;">
-    <div style="background:#111; padding:30px; border:1px solid #d4af37; border-radius:12px; text-align:center; width:90%; max-width:350px;">
+    <div style="background:#111; padding:30px; border:1px solid #b026ff; border-radius:12px; text-align:center; width:90%; max-width:350px;">
         <h3 style="color:#fff; margin-top:0;">CONVITE</h3>
         <p style="color:#888; font-size:0.8rem; margin-bottom:20px;">Cole o código que o Mestre te mandou:</p>
         
         <input type="text" id="inp-camp-code" placeholder="Ex: MESA-RPG" 
                style="width:100%; padding:15px; background:#000; border:1px solid #333; color:#fff; text-align:center; text-transform:uppercase; font-size:1.2rem; border-radius:6px; margin-bottom:20px; outline:none;">
         
-        <button onclick="joinCamp()" style="width:100%; padding:15px; background:#d4af37; color:#000; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">ENTRAR NA SALA</button>
+        <button onclick="joinCamp()" style="width:100%; padding:15px; background:#b026ff; color:#000; font-weight:bold; border:none; border-radius:6px; cursor:pointer;">ENTRAR NA SALA</button>
         
         <button onclick="document.getElementById('camp-modal').style.display='none'" style="margin-top:15px; background:none; border:none; color:#bd1e1e; cursor:pointer; font-size:0.8rem;">CANCELAR</button>
     </div>
@@ -165,13 +393,29 @@
     <div id="sheet-screen">
         <div class="sheet-header">
             <div class="sh-info"><button onclick="closeSheet()" style="background:none; border:none; color:#666; margin-bottom:5px;">← VOLTAR</button><h1 id="sh-char-name">Nome</h1><span id="sh-player-race">Player</span></div>
-            <div><button onclick="shareChar()" style="background:none; border:none; color:#fff; font-size:1.2rem;">🔗</button><button onclick="openSettings()" style="background:none; border:none; color:#fff; font-size:1.2rem; margin-left:10px;">⚙️</button></div>
+                <div style="display:flex; align-items:center; gap: 15px;"> <button onclick="shareChar()" style="background:none; border:none; cursor:pointer; padding:0;">
+            <img src="link.png" style="width:55px; height:55px; object-fit:contain; filter:drop-shadow(0 0 4px var(--neon-purple)); vertical-align:middle;">
+        </button>
+        
+        <button onclick="openSettings()" style="background:none; border:none; cursor:pointer; padding:0;">
+            <img src="config.png" style="width:55px; height:55px; object-fit:contain; filter:drop-shadow(0 0 4px var(--neon-purple)); vertical-align:middle;">
+        </button>
+
+    </div>
+
         </div>
         <div class="sheet-content">
-            <div id="view-info" class="sheet-view active"><h2 style="border-bottom:1px solid #333;">Dossiê</h2><p id="sh-hist" style="color:#aaa; line-height:1.6;"></p><div style="background:#111; padding:20px; border-radius:8px; margin-top:20px;"><span style="color:#d4af37; font-size:1.2rem; display:block; margin-bottom:5px;" id="sh-class">Classe</span><span style="color:#fff;" id="sh-origem">Origem</span></div></div>
+            <div id="view-info" class="sheet-view active"><h2 style="border-bottom:1px solid #333;">Dossiê</h2><p id="sh-hist" style="color:#aaa; line-height:1.6;"></p><div style="background:#111; padding:20px; border-radius:8px; margin-top:20px;"><span style="color:#b026ff; font-size:1.2rem; display:block; margin-bottom:5px;" id="sh-class">Classe</span><span style="color:#fff;" id="sh-origem">Origem</span></div></div>
             <div id="view-atributos" class="sheet-view">
-                <div style="display:flex; justify-content:space-between; align-items:center;"><h3>Atributos Base</h3><button id="btn-edit-attr" onclick="toggleAttrEdit()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✏️</button></div>
-                <div id="base-attrs" style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px; text-align:center; margin-bottom: 20px;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <h3>Atributos Base</h3>
+    
+    <button onclick="toggleAttrEdit()" style="background:none; border:none; cursor:pointer; padding:5px;">
+        <img id="img-attr-toggle" src="lapis.png" class="ui-icon" 
+             style="width: 75px; height: 75px; object-fit: contain;">
+    </button>
+</div>
+<div id="base-attrs" style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px; text-align:center; margin-bottom: 20px;"></div>
                 
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:15px; margin-top:20px;">
                     <h3 style="margin:0;">Reservas Vitais</h3>
@@ -210,6 +454,20 @@
             <div id="view-oficios" class="sheet-view"><h3>Ofícios</h3><div id="list-oficios"></div><button class="btn-add-fancy" onclick="openAddModal('oficios')">+ Adicionar Ofício</button></div>
             <div id="view-equipamentos" class="sheet-view"><h3>Equipamentos</h3><div id="list-equipamentos"></div><button class="btn-add-fancy" onclick="openAddModal('equipamentos')">+ Adicionar Equipamento</button></div>
             <div id="view-itens" class="sheet-view"><h3>Inventário</h3><div id="list-itens"></div><button class="btn-add-fancy" onclick="openAddModal('itens')">+ Adicionar Item</button></div>
+                <div id="view-npcs" class="sheet-view">
+        <h3 style="border-bottom:1px solid #333; padding-bottom:10px;">PERSONAGENS & NPCs</h3>
+        <div id="list-npcs" class="npc-grid">
+            <p style="color:#666; font-size:0.8rem; width:100%;">Carregando dados do Mestre...</p>
+        <div id="view-cenarios" class="sheet-view">
+        <h3 style="border-bottom:1px solid #333; padding-bottom:10px;">LOCAIS & MAPAS</h3>
+        <div id="list-cenarios">
+            <p style="color:#666; font-size:0.8rem;">Aguardando dados...</p>
+        </div>
+    </div>
+
+        </div>
+    </div>
+
         </div>
 
         <div id="toast-container"></div>
@@ -226,20 +484,98 @@
 
     <div id="edit-modal">
         <div class="edit-container">
-            <div class="edit-header"><h3 style="margin:0; color:#d4af37;">EDITAR</h3><button onclick="document.getElementById('edit-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div>
+            <div class="edit-header"><h3 style="margin:0; color:#b026ff;">EDITAR</h3><button onclick="document.getElementById('edit-modal').style.display='none'" style="background:none; border:none; color:#fff; font-size:1.5rem;">&times;</button></div>
             <label class="edit-label">Nome</label><input type="text" id="ed-name" class="edit-input">
             <div class="grid-2"><div><label class="edit-label">Dano</label><input type="text" id="ed-dmg" class="edit-input"></div><div><label class="edit-label">Crítico</label><input type="text" id="ed-crit" class="edit-input"></div></div>
             <div class="grid-2"><div><label class="edit-label">Tipo</label><input type="text" id="ed-type" class="edit-input"></div><div><label class="edit-label">Alcance</label><input type="text" id="ed-range" class="edit-input"></div></div>
             <div class="grid-2"><div><label class="edit-label">Perícia</label><input type="text" id="ed-skill" class="edit-input"></div><div><label class="edit-label">Atributo</label><input type="text" id="ed-attr" class="edit-input"></div></div>
             <label class="edit-label">Imagem URL</label><input type="text" id="ed-img" class="edit-input">
             <label class="edit-label">Notas</label><textarea id="ed-notes" class="edit-input" rows="3"></textarea>
-            <div style="margin-top:20px; border-top:1px dashed #333; padding-top:10px;"><label class="edit-label" style="color:#d4af37; font-size:0.9rem;">DANO EXTRA</label><div id="extra-dmg-list"></div><button onclick="addExtraDmgField()" style="background:#222; border:1px solid #444; color:#ccc; padding:8px; width:100%; border-radius:4px; margin-top:5px;">+ Adicionar</button></div>
+            <div style="margin-top:20px; border-top:1px dashed #333; padding-top:10px;"><label class="edit-label" style="color:#b026ff; font-size:0.9rem;">DANO EXTRA</label><div id="extra-dmg-list"></div><button onclick="addExtraDmgField()" style="background:#222; border:1px solid #444; color:#ccc; padding:8px; width:100%; border-radius:4px; margin-top:5px;">+ Adicionar</button></div>
             <button class="btn-save-edit" onclick="saveEdit()">SALVAR ALTERAÇÕES</button>
         </div>
     </div>
 
-    <div id="menu-overlay" onclick="toggleMenu()"><div class="menu-grid" onclick="event.stopPropagation()"><div class="menu-btn" onclick="navTo('info')">INFO</div><div class="menu-btn" onclick="navTo('atributos')">ATRIBUTOS</div><div class="menu-btn" onclick="navTo('habilidades')">HABILIDADES</div><div class="menu-btn" onclick="navTo('combate')">COMBATE</div><div class="menu-btn" onclick="navTo('pericias')">PERÍCIAS</div><div class="menu-btn" onclick="navTo('oficios')">OFÍCIOS</div><div class="menu-btn" onclick="navTo('equipamentos')">EQUIPAMENTOS</div><div class="menu-btn" onclick="navTo('itens')">INVENTÁRIO</div></div></div>
-    <div id="settings-modal"><h3>Tema</h3><div id="color-opts"><span class="color-dot" style="background:#d4af37" onclick="setTheme('#d4af37')"></span><span class="color-dot" style="background:#e74c3c" onclick="setTheme('#e74c3c')"></span><span class="color-dot" style="background:#3498db" onclick="setTheme('#3498db')"></span></div><p>Imagem URL</p><input type="text" id="img-input" style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:5px;" onchange="setBg(this.value)"><button onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top:10px; width:100%; padding:10px;">Fechar</button></div>
+    <div id="menu-overlay" onclick="toggleMenu()"><div class="menu-grid" onclick="event.stopPropagation()">
+    
+    <div class="menu-btn" onclick="navTo('info')">
+        <img src="info.png" class="btn-icon">
+        <span class="btn-text txt-info">INFO</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('atributos')">
+        <img src="atributos.png" class="btn-icon">
+        <span class="btn-text txt-attrs">ATRIBUTOS</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('habilidades')">
+        <img src="habilidades.png" class="btn-icon">
+        <span class="btn-text txt-habs">HABILIDADES</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('combate')">
+        <img src="combate.png" class="btn-icon">
+        <span class="btn-text txt-combate">COMBATE</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('pericias')">
+        <img src="pericia.png" class="btn-icon">
+        <span class="btn-text txt-pericias">PERÍCIAS</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('oficios')">
+        <img src="oficio.png" class="btn-icon">
+        <span class="btn-text txt-oficios">OFÍCIOS</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('equipamentos')">
+        <img src="equipamento.png" class="btn-icon">
+        <span class="btn-text txt-equips">EQUIPAMENTOS</span>
+    </div>
+
+    <div class="menu-btn" onclick="navTo('itens')">
+        <img src="inventario.png" class="btn-icon">
+        <span class="btn-text txt-inv">INVENTÁRIO</span>
+    </div>
+    <div class="menu-btn" onclick="navTo('npcs')">
+        <img src="npc.png" class="btn-icon"> 
+        <span class="btn-text txt-npcs" style="left: 30px;">NPCs</span>
+    </div>
+    <div class="menu-btn" onclick="navTo('cenarios')">
+        <img src="mapa.png" class="btn-icon"> 
+        <span class="btn-text txt-maps" style="left: 30px;">CENÁRIOS</span>
+    </div>
+
+    </div></div><div id="settings-modal">
+        <h3 style="color:#fff; border-bottom:1px solid #333; padding-bottom:10px; margin-top:0;">PERSONALIZAR</h3>
+        
+        <label class="edit-label" style="margin-top:15px; display:block; color:#888;">Cor do Tema</label>
+        <div id="color-opts" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:20px;">
+            <span class="color-dot" style="background:#b026ff; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#b026ff')"></span>
+            <span class="color-dot" style="background:#e74c3c; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#e74c3c')"></span>
+            <span class="color-dot" style="background:#3498db; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#3498db')"></span>
+            <span class="color-dot" style="background:#2ecc71; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#2ecc71')"></span>
+            <span class="color-dot" style="background:#e67e22; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#e67e22')"></span>
+            <span class="color-dot" style="background:#00d2d3; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#00d2d3')"></span>
+            <span class="color-dot" style="background:#ff6b81; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#ff6b81')"></span>
+            <span class="color-dot" style="background:#bdc3c7; width:100%; height:40px; border-radius:8px; border:1px solid #333;" onclick="setTheme('#bdc3c7')"></span>
+        </div>
+
+        <label class="edit-label" style="display:block; color:#888;">Imagem de Fundo</label>
+        
+        <label for="file-upload" id="lbl-upload" style="display:block; width:100%; padding:15px; background:#222; border:1px dashed #555; color:#ccc; text-align:center; cursor:pointer; border-radius:8px; margin-bottom:10px; margin-top:5px;">
+            📁 Escolher da Galeria
+        </label>
+        <input type="file" id="file-upload" accept="image/*" style="display:none;" onchange="uploadImagemGaleria(this)">
+
+        <p style="text-align:center; color:#666; font-size:0.8rem; margin:5px 0;">OU use um Link:</p>
+        <input type="text" id="img-input" placeholder="Cole a URL da imagem aqui..." style="width:100%; background:#000; color:#fff; border:1px solid #333; padding:10px; border-radius:5px;" onchange="setBg(this.value)">
+
+        <button onclick="document.getElementById('settings-modal').style.display='none'" 
+                style="margin-top:20px; width:100%; padding:12px; background:var(--neon-purple); color:#000; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">
+                CONCLUIR
+        </button>
+    </div>
 
     <script>
         // --- CONFIG ---
@@ -265,6 +601,18 @@
         let rollHistory = []; 
         let roomCode = localStorage.getItem('rpg_room_code_v14');
         let dbRef = null;
+        let npcs = []; // Variável global para guardar a lista
+        let cenarios = [];
+
+    // --- SUAS IMAGENS AQUI ---
+// Troque os nomes abaixo pelos nomes dos arquivos que estão na sua pasta
+const MEUS_ICONES = {
+    editar: "lapis.png",       // Imagem de editar/lápis
+    lixo: "lixeira.png",       // Imagem da lixeira
+    favorito: "★",   // Imagem da estrela/favorito
+    dado: "d20.png"            // Imagem do dado (para rolar)
+};
+
 
         // --- DB ---
         const classesDB = [{n:'Mago', s:{mp:25, hp:-15}}, {n:'Cavaleiro', s:{hp:25}}, {n:'Cavaleiro Sagrado', s:{hp:35, cos:25}}, {n:'Bárbaro', s:{hp:10, mp:-15, ck:5}}, {n:'Samurai', s:{ki:15, mp:-10}}, {n:'Monje', s:{hp:10, ck:10, cos:5}}, {n:'Elegante', s:{mp:15}}, {n:'Ceifeiro', s:{hp:25, mp:15}}, {n:'Bruxo', s:{mp:30, hp:-10}}, {n:'Arcano', s:{hp:25, mp:10}}, {n:'Obscuro', s:{hp:15, mp:15}}, {n:'Fabricante', s:{hp:10}}, {n:'Contratante Espiritual', s:{mp:35}}, {n:'Caçador Apurado', s:{}}, {n:'Cantor Andarilho', s:{ck:40}}];
@@ -302,6 +650,28 @@
                     }
                 }
             });
+    // Dentro do window.onload, logo abaixo dos outros dbRef...
+    
+    // ESCUTA A LISTA DE NPCS DO MESTRE
+    dbRef.child('npcs').on('value', (snapshot) => {
+        const data = snapshot.val();
+        npcs = data || []; // Se não tiver nada, fica vazio
+        
+        // Se a aba de NPCs estiver aberta, atualiza na hora
+        if(document.getElementById('view-npcs').classList.contains('active')) {
+            renderNPCs();
+        }
+    });
+    // ESCUTA A LISTA DE CENÁRIOS
+    dbRef.child('cenarios').on('value', (snapshot) => {
+        const data = snapshot.val();
+        cenarios = data || [];
+        
+        // Se a aba estiver aberta, atualiza
+        if(document.getElementById('view-cenarios').classList.contains('active')) {
+            renderCenarios();
+        }
+    });
 
             dbRef.child('rolls').limitToLast(1).on('child_added', (snapshot) => {
                 const r = snapshot.val();
@@ -402,7 +772,7 @@
             chars.forEach(c => {
                 const el = document.createElement('div'); el.className = 'home-card';
                 if(c.bg) el.style.backgroundImage = `url('${c.bg}')`; el.style.borderColor = c.color || '#333';
-                el.innerHTML = `<div class="hc-content"><button style="position:absolute; right:0; top:0; background:none; border:none; color:red; cursor:pointer;" onclick="delChar(${c.id}, event)">×</button><span class="hc-class" style="color:${c.color||'#d4af37'}">${c.classe}</span><div class="hc-name">${c.name}</div><div style="font-size:0.8rem; color:#ccc;">${c.player}</div><button class="btn-access" onclick="openSheet(${c.id})">Acessar</button></div>`;
+                el.innerHTML = `<div class="hc-content"><button style="position:absolute; right:0; top:0; background:none; border:none; color:red; cursor:pointer;" onclick="delChar(${c.id}, event)">×</button><span class="hc-class" style="color:${c.color||'#b026ff'}">${c.classe}</span><div class="hc-name">${c.name}</div><div style="font-size:0.8rem; color:#ccc;">${c.player}</div><button class="btn-access" onclick="openSheet(${c.id})">Acessar</button></div>`;
                 grid.appendChild(el);
             });
         }
@@ -429,7 +799,7 @@
         function updateWizUI(){document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));document.getElementById(`step-${wizStep}`).classList.add('active');}
         function nextStep(){ if(wizStep<5){wizStep++;updateWizUI();}else finishChar(); }
         function finishChar(){
-            const newChar={id:Date.now(), name:document.getElementById('w-name').value, player:document.getElementById('w-player').value, race:document.getElementById('w-race').value, hist:document.getElementById('w-hist').value, age:document.getElementById('w-age').value, classe:tempChar.classe, stats:{hp:{c:25,b:0},mp:{c:15,b:0},cos:{c:0,b:0},ki:{c:0,b:0},ck:{c:0,b:0}, level:1, xp:0, def:0, res:0}, attrs:{for:parseInt(document.getElementById('w-for').value)||1, agi:parseInt(document.getElementById('w-agi').value)||1, int:parseInt(document.getElementById('w-int').value)||1, vig:parseInt(document.getElementById('w-vig').value)||1, aur:parseInt(document.getElementById('w-aur').value)||1}, lists:{habilidades:[],pericias:tempChar.pericias.map(p=>({n:p,fav:false})),oficios:tempChar.oficios.map(o=>({n:o,fav:false})),equipamentos:[],itens:[]}, color:'#d4af37'};
+            const newChar={id:Date.now(), name:document.getElementById('w-name').value, player:document.getElementById('w-player').value, race:document.getElementById('w-race').value, hist:document.getElementById('w-hist').value, age:document.getElementById('w-age').value, classe:tempChar.classe, stats:{hp:{c:25,b:0},mp:{c:15,b:0},cos:{c:0,b:0},ki:{c:0,b:0},ck:{c:0,b:0}, level:1, xp:0, def:0, res:0}, attrs:{for:parseInt(document.getElementById('w-for').value)||1, agi:parseInt(document.getElementById('w-agi').value)||1, int:parseInt(document.getElementById('w-int').value)||1, vig:parseInt(document.getElementById('w-vig').value)||1, aur:parseInt(document.getElementById('w-aur').value)||1}, lists:{habilidades:[],pericias:tempChar.pericias.map(p=>({n:p,fav:false})),oficios:tempChar.oficios.map(o=>({n:o,fav:false})),equipamentos:[],itens:[]}, color:'#b026ff'};
             calcMax(newChar); ['hp','mp','cos','ki','ck'].forEach(k=>newChar.stats[k].c=newChar.calculatedMax[k]);
             if(!chars) chars = []; chars.push(newChar); save(); document.getElementById('wizard-screen').style.display='none'; document.getElementById('home-screen').style.display='flex'; renderHome();
         }
@@ -454,8 +824,25 @@
         function closeSheet(){activeId=null; document.getElementById('sheet-screen').style.display='none'; renderHome();}
         function navTo(v){document.querySelectorAll('.sheet-view').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.getElementById('menu-overlay').style.display='none';}
         function toggleMenu(){const m=document.getElementById('menu-overlay');m.style.display=(m.style.display==='flex')?'none':'flex';}
-        function toggleAttrEdit() { attrEditMode = !attrEditMode; document.getElementById('btn-edit-attr').innerText = attrEditMode ? '💾' : '✏️'; if(!attrEditMode) { calcMax(getActive()); save(); } renderAttrs(); }
-        
+       function toggleAttrEdit() { 
+    attrEditMode = !attrEditMode; 
+    
+    // Pega a imagem pelo ID que criamos no HTML
+    const img = document.getElementById('img-attr-toggle');
+    
+    // Se estiver editando (attrEditMode é verdadeiro), mostra o DISQUETE.
+    // Se não, mostra o LÁPIS.
+    img.src = attrEditMode ? "disquete.png" : "lapis.png";
+    
+    // Salva e recalcula se estiver saindo do modo de edição
+    if(!attrEditMode) { 
+        calcMax(getActive()); 
+        save(); 
+    } 
+    
+    renderAttrs(); 
+}
+
         function renderAttrs() {
             const c = getActive(); calcMax(c); 
             // Level / XP
@@ -464,7 +851,7 @@
 
             const baseDiv = document.getElementById('base-attrs'); baseDiv.innerHTML = '';
             Object.entries(c.attrs).forEach(([k,v]) => {
-                if(attrEditMode) baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #d4af37; border-radius:5px;"><input type="number" value="${v}" style="width:100%; bg:transparent; color:#fff; border:none; text-align:center; font-size:1.2rem;" onchange="updateAttr('${k}',this.value)"><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
+                if(attrEditMode) baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #b026ff; border-radius:5px;"><input type="number" value="${v}" style="width:100%; bg:transparent; color:#fff; border:none; text-align:center; font-size:1.2rem;" onchange="updateAttr('${k}',this.value)"><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
                 else baseDiv.innerHTML += `<div style="background:#111; padding:10px; border:1px solid #333; border-radius:5px; cursor:pointer;" onclick="rollAttr('${k}', ${v})"><div style="font-size:1.2rem; font-weight:bold;">${v}</div><div style="font-size:0.6rem; color:#888;">${k.toUpperCase()}</div></div>`;
             });
             
@@ -526,23 +913,79 @@
         function setCustomMax(i, v) { getActive().customBars[i].m = parseInt(v); save(); renderAttrs(); }
 
         function renderList(type) {
-            const c = getActive(); 
-            if(!c.lists) c.lists = {}; 
-            if(!c.lists[type]) c.lists[type] = []; 
-            const div = document.getElementById('list-'+type); div.innerHTML = '';
-            c.lists[type].forEach((item, i) => {
-                const hexIcon = `<svg class="icon-hex" viewBox="0 0 100 100" onclick="event.stopPropagation(); rollItem('${type}', ${i})"><polygon points="50 3, 100 28, 100 75, 50 100, 3 75, 3 28" /></svg>`;
-                const modVal = item.mod || 0; const sign = modVal >= 0 ? '+' : '';
-                div.innerHTML += `<div class="item-card" onclick="this.classList.toggle('open')"><div class="card-top">${hexIcon}<b>${item.n}</b><input type="text" class="mod-input" value="${sign}${modVal}" onclick="event.stopPropagation()" onchange="updateItemMod('${type}', ${i}, this.value)"></div><div class="item-details"><button class="btn-card-action btn-remove" onclick="removeItem(event,'${type}',${i})">Remover</button><button class="btn-card-action btn-edit" onclick="openEditModal(event,'${type}',${i})">Editar</button><button class="btn-card-action btn-fav ${item.fav?'active':''}" onclick="togFav(event,'${type}',${i})">★</button><p style="font-size:0.8rem; color:#888; margin-top:5px; width:100%;">${item.desc||''}</p></div></div>`;
-            });
-        }
+    const c = getActive(); 
+    if(!c.lists) c.lists = {}; 
+    if(!c.lists[type]) c.lists[type] = []; 
+    
+    const div = document.getElementById('list-'+type); 
+    div.innerHTML = '';
+    
+    c.lists[type].forEach((item, i) => {
+        // Mantém a imagem do dado (se você quiser) ou pode voltar pro emoji
+        const hexIcon = `<img src="dado.png" class="dice-img" onclick="event.stopPropagation(); rollItem('${type}', ${i})">`;
+        
+        const modVal = item.mod || 0; 
+        const sign = modVal >= 0 ? '+' : '';
+        
+        // VOLTANDO OS BOTÕES PARA TEXTO AQUI EMBAIXO:
+        div.innerHTML += `
+        <div class="item-card" onclick="this.classList.toggle('open')">
+            <div class="card-top">
+                ${hexIcon}
+                <b style="flex:1; margin-left:10px;">${item.n}</b>
+                <input type="text" class="mod-input" value="${sign}${modVal}" onclick="event.stopPropagation()" onchange="updateItemMod('${type}', ${i}, this.value)">
+            </div>
+            
+            <div class="item-details">
+                <button class="btn-card-action btn-remove" onclick="removeItem(event,'${type}',${i})">Remover</button>
+                
+                <button class="btn-card-action btn-edit" onclick="openEditModal(event,'${type}',${i})">Editar</button>
+                
+                <button class="btn-card-action btn-fav ${item.fav?'active':''}" onclick="togFav(event,'${type}',${i})">★</button>
+                
+                <p style="font-size:0.8rem; color:#888; margin-top:5px; width:100%;">${item.desc||''}</p>
+            </div>
+        </div>`;
+    });
+}
+
         function updateItemMod(type, i, val) { 
             getActive().lists[type][i].mod = parseInt(val); 
             clearTimeout(window.saveTimeout);
             window.saveTimeout = setTimeout(() => save(), 1000); 
         }
         function removeItem(e,t,i){ e.stopPropagation(); if(confirm("Remover?")){ getActive().lists[t].splice(i,1); save(); renderList(t); renderFavs(); }}
-        function renderFavs(){ const c=getActive(); const div=document.getElementById('list-favs'); div.innerHTML=''; ['habilidades','pericias','oficios','equipamentos','itens'].forEach(t=>{ if(c.lists && c.lists[t]) c.lists[t].forEach((i,idx)=>{ if(i.fav){ const hexIcon = `<svg class="icon-hex" viewBox="0 0 100 100" onclick="event.stopPropagation(); rollItem('${t}', ${idx})"><polygon points="50 3, 100 28, 100 75, 50 100, 3 75, 3 28" /></svg>`; div.innerHTML+=`<div class="item-card" style="border-color:#d4af37"><div class="card-top">${hexIcon}<b>${i.n}</b></div><small>${t.toUpperCase()}</small></div>`; }}); }); }
+        function renderFavs() {
+    const c = getActive();
+    const div = document.getElementById('list-favs');
+    div.innerHTML = '';
+
+    // Lista de categorias para procurar favoritos
+    ['habilidades', 'pericias', 'oficios', 'equipamentos', 'itens'].forEach(t => {
+        // Verifica se a lista existe no personagem
+        if (c.lists && c.lists[t]) {
+            c.lists[t].forEach((i, idx) => {
+                // Se o item for favorito (fav == true)
+                if (i.fav) {
+                    // AQUI ESTÁ A IMAGEM DO DADO
+                    // Não esqueça de trocar a URL abaixo pela sua imagem
+                    const hexIcon = `<img src="dado.png" class="dice-img" onclick="event.stopPropagation(); rollItem('${t}', ${idx})">`;
+
+                    // Adiciona o cartão na tela (com borda roxa neon)
+                    div.innerHTML += `
+                        <div class="item-card" style="border-color: var(--neon-purple)">
+                            <div class="card-top">
+                                ${hexIcon}
+                                <b>${i.n}</b>
+                            </div>
+                            <small>${t.toUpperCase()}</small>
+                        </div>`;
+                }
+            });
+        }
+    });
+}
+
         function togFav(e,t,i){ e.stopPropagation(); const c=getActive(); c.lists[t][i].fav=!c.lists[t][i].fav; save(); renderList(t); renderFavs(); }
 
         function openEditModal(e, type, index) { e.stopPropagation(); editingList = type; editingIndex = index; const item = getActive().lists[type][index]; document.getElementById('ed-name').value = item.n || ''; document.getElementById('ed-dmg').value = item.dmg || ''; document.getElementById('ed-crit').value = item.crit || ''; document.getElementById('ed-type').value = item.type || ''; document.getElementById('ed-range').value = item.range || ''; document.getElementById('ed-skill').value = item.skill || ''; document.getElementById('ed-attr').value = item.attr || ''; document.getElementById('ed-img').value = item.img || ''; document.getElementById('ed-notes').value = item.desc || ''; const extraContainer = document.getElementById('extra-dmg-list'); extraContainer.innerHTML = ''; if(item.extraDmg) { item.extraDmg.forEach(ex => { const row = document.createElement('div'); row.className='extra-dmg-row'; row.innerHTML = `<input type="text" class="edit-input" placeholder="Dado" value="${ex.dice}"><input type="text" class="edit-input" placeholder="Tipo" value="${ex.type}"><button class="btn-del-extra" onclick="this.parentElement.remove()">X</button>`; extraContainer.appendChild(row); }); } document.getElementById('edit-modal').style.display = 'flex'; }
@@ -623,7 +1066,6 @@ function joinCamp() {
         // Se você já tem um personagem lá, ele aparece. Se não, você clica em "+ Novo Agente".
         // Assim que você criar ou abrir, o Mestre vê lá na tela dele.
     });
-    
     // 5. Reconecta o sistema de rolagens
     dbRef.child('rolls').limitToLast(1).on('child_added', (snapshot) => {
         const r = snapshot.val();
@@ -636,6 +1078,153 @@ function joinCamp() {
     // Fecha modal e avisa
     document.getElementById('camp-modal').style.display = 'none';
     alert(`Conectado à campanha: ${roomCode}\nAgora crie seu personagem ou selecione um existente.`);
+}
+    // --- FUNÇÃO VISUAL ROXO NEON ---
+    function aplicarEstiloNeon() {
+        // Seleciona os botões principais do sistema
+        const botoes = document.querySelectorAll('.btn-new, .btn-pick-cls, .btn-save-edit, .btn-wiz-action.primary, .btn-custom-add, #camp-modal button');
+        
+        botoes.forEach(btn => {
+            btn.classList.add('btn-glitch');
+            
+            // Gera números aleatórios para criar o padrão único
+            const angulo = Math.floor(Math.random() * 360); // Direção das listras
+            const roxoW = Math.floor(Math.random() * 30) + 10; // Tamanho da parte roxa
+            const pretoW = Math.floor(Math.random() * 5) + 2;  // Tamanho da linha preta (fundo)
+            
+            // Aplica um gradiente que mistura o ROXO com a COR DO FUNDO (#050505)
+            btn.style.background = `repeating-linear-gradient(
+                ${angulo}deg,
+                var(--neon-purple),
+                var(--neon-purple) ${roxoW}px,
+                var(--bg-color) ${roxoW}px,
+                var(--bg-color) ${roxoW + pretoW}px
+            )`;
+        });
+    }
+
+    // Chama a função assim que a página carrega e quando o sistema atualiza
+    window.addEventListener('DOMContentLoaded', aplicarEstiloNeon);
+    
+    // ATENÇÃO: Adicione a chamada 'aplicarEstiloNeon()' dentro das funções 
+    // 'renderHome', 'openAddModal' e 'startWizard' para garantir que 
+    // botões novos também recebam o efeito.
+    // --- FUNÇÃO DE UPLOAD DA GALERIA ---
+    function uploadImagemGaleria(input) {
+        if (input.files && input.files[0]) {
+            const arquivo = input.files[0];
+            const lbl = document.getElementById('lbl-upload');
+            lbl.innerText = "⌛ Processando...";
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                
+                img.onload = function() {
+                    // Cria um Canvas para redimensionar a imagem
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Redimensiona para max 800px (para ficar leve)
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Desenha a imagem nova
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Converte para código e salva
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    setBg(dataUrl);
+                    
+                    // Atualiza visual
+                    lbl.innerText = "✅ Foto Definida!";
+                    setTimeout(() => lbl.innerText = "📁 Escolher da Galeria", 2000);
+                    document.getElementById('img-input').value = "(Imagem da Galeria)";
+                }
+            }
+            reader.readAsDataURL(arquivo);
+        }
+    }
+
+    // Atualize também suas funções setTheme e setBg para garantir que atualizem a tela na hora
+    function setTheme(c){
+        getActive().color=c; 
+        save(); 
+        renderHome();
+        // Atualiza a borda do modal imediatamente para dar feedback visual
+        document.querySelector('#settings-modal button').style.background = c;
+    }
+    function renderNPCs() {
+    const div = document.getElementById('list-npcs');
+    div.innerHTML = '';
+
+    if (!npcs || npcs.length === 0) {
+        div.innerHTML = '<p style="color:#666; text-align:center; grid-column: 1 / -1;">Nenhum NPC revelado ainda.</p>';
+        return;
+    }
+
+    npcs.forEach(npc => {
+        // Se o mestre não pôs foto, usa uma genérica
+        const imgUrl = npc.img || 'https://via.placeholder.com/150?text=NPC';
+        
+        div.innerHTML += `
+            <div class="npc-card">
+                <span class="npc-name">${npc.name}</span>
+                
+                <img src="${imgUrl}" class="npc-img" onclick="expandImage('${imgUrl}')">
+                
+                ${npc.desc ? `<div class="npc-desc">${npc.desc}</div>` : ''}
+            </div>
+        `;
+    });
+}
+
+// Bônus: Função para dar zoom na foto se clicar nela
+function expandImage(url) {
+    // Pode usar o mesmo modal de configurações ou criar um simples alert visual
+    window.open(url, '_blank');
+}
+
+    function setBg(u){
+        getActive().bg=u; 
+        save(); 
+        renderHome();
+    }
+function renderCenarios() {
+    const div = document.getElementById('list-cenarios');
+    div.innerHTML = '';
+
+    if (!cenarios || cenarios.length === 0) {
+        div.innerHTML = '<p style="color:#666; text-align:center;">Nenhum local descoberto.</p>';
+        return;
+    }
+
+    cenarios.forEach(local => {
+        const imgUrl = local.img || 'https://via.placeholder.com/300x150?text=Cenario';
+        
+        div.innerHTML += `
+            <div class="place-card">
+                <div class="place-header">
+                    <span class="place-name">${local.name}</span>
+                </div>
+                
+                <img src="${imgUrl}" class="place-img" onclick="expandImage('${imgUrl}')">
+                
+                ${local.desc ? `<div class="place-desc">${local.desc}</div>` : ''}
+            </div>
+        `;
+    });
 }
 
     </script>

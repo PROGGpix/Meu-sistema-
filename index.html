@@ -305,12 +305,16 @@
     letter-spacing: 1px;
 }
 
+/* No seu <style>, garanta que o .npc-img tenha altura */
 .npc-img {
     width: 100%;
-    height: 180px;            /* Altura fixa pra ficarem iguais */
-    object-fit: cover;        /* Corta a imagem pra caber sem esticar */
+    height: 180px;
+    object-fit: cover;
     border-radius: 8px;
-    border: 1px solid #222;
+    border: 1px solid #333;
+    display: block;
+    background: #111;
+    cursor: pointer;
 }
 
 .npc-desc {
@@ -319,51 +323,33 @@
     margin-top: 8px;
     line-height: 1.4;
 }
-/* --- ESTILO DA ABA CENÁRIOS --- */
+/* --- ESTILO DOS CENÁRIOS (PLAYER) --- */
 .place-card {
     background: #0f0f0f;
-    border: 1px solid #222;
+    border: 1px solid #333;
     border-radius: 12px;
-    overflow: hidden; /* Garante que a imagem não saia */
-    margin-bottom: 15px;
-    transition: 0.3s;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-
-.place-card:hover {
-    border-color: var(--neon-purple);
-    box-shadow: 0 0 15px rgba(176, 38, 255, 0.2);
-}
-
 .place-header {
-    padding: 10px;
-    text-align: center;
-    background: #151515;
-    border-bottom: 1px solid #222;
+    padding: 10px; text-align: center; background: #151515; border-bottom: 1px solid #222;
 }
-
 .place-name {
-    font-size: 1rem;
-    font-weight: 800;          /* Negrito */
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    color: #fff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 1rem;
 }
-
 .place-img {
     width: 100%;
-    height: 140px;            /* Altura menor para ficar Widescreen */
+    height: auto;
+    min-height: 180px; /* Garante que a foto ocupe espaço */
     object-fit: cover;
     display: block;
-    cursor: pointer;          /* Mãozinha para indicar que pode clicar */
+    cursor: pointer;
+}
+.place-desc {
+    padding: 15px; color: #aaa; font-size: 0.85rem; line-height: 1.5; border-top: 1px solid #222;
 }
 
-.place-desc {
-    padding: 10px;
-    font-size: 0.75rem;
-    color: #999;
-    line-height: 1.5;
-    border-top: 1px solid #222;
-}
 /* Foto do Item (Fica na esquerda) */
 .item-thumb {
     width: 45px;
@@ -393,6 +379,11 @@
     transition: 0.2s;
 }
 .roll-icon:hover { transform: rotate(180deg) scale(1.1); }
+/* Faz o botão ocupar a largura toda do grid (2 colunas) */
+.btn-wide {
+    grid-column: span 2;
+    padding-left: 125px !important; /* Ajuste para o ícone não sumir */
+}
 
     </style>
 </head>
@@ -498,15 +489,11 @@
             <div id="view-equipamentos" class="sheet-view"><h3>Equipamentos</h3><div id="list-equipamentos"></div><button class="btn-add-fancy" onclick="openAddModal('equipamentos')">+ Adicionar Equipamento</button></div>
             <div id="view-itens" class="sheet-view"><h3>Inventário</h3><div id="list-itens"></div><button class="btn-add-fancy" onclick="openAddModal('itens')">+ Adicionar Item</button></div>
                 <div id="view-npcs" class="sheet-view">
-        <h3 style="border-bottom:1px solid #333; padding-bottom:10px;">PERSONAGENS & NPCs</h3>
+        <h3 style="border-bottom:1px solid #333; padding-bottom:10px;">NPCs & CENÁRIOS</h3>
         <div id="list-npcs" class="npc-grid">
             <p style="color:#666; font-size:0.8rem; width:100%;">Carregando dados do Mestre...</p>
-        <div id="view-cenarios" class="sheet-view">
-        <h3 style="border-bottom:1px solid #333; padding-bottom:10px;">LOCAIS & MAPAS</h3>
-        <div id="list-cenarios">
-            <p style="color:#666; font-size:0.8rem;">Aguardando dados...</p>
-        </div>
-    </div>
+
+   </div>
 
         </div>
     </div>
@@ -610,15 +597,12 @@
         <img src="inventario.png" class="btn-icon">
         <span class="btn-text txt-inv">INVENTÁRIO</span>
     </div>
-    <div class="menu-btn" onclick="navTo('npcs')">
-        <img src="npc.png" class="btn-icon"> 
-        <span class="btn-text txt-npcs" style="left: 30px;">NPCs</span>
-    </div>
-    <div class="menu-btn" onclick="navTo('cenarios')">
-        <img src="mapa.png" class="btn-icon"> 
-        <span class="btn-text txt-maps" style="left: 30px;">CENÁRIOS</span>
-    </div>
+    <div class="menu-btn btn-wide" onclick="navTo('npcs')">
+    <img src="npc.png" class="btn-icon">
+    <span class="btn-text">NPCs e CENÁRIOS</span>
+</div>
 
+    
     </div></div><div id="settings-modal">
         <h3 style="color:#fff; border-bottom:1px solid #333; padding-bottom:10px; margin-top:0;">PERSONALIZAR</h3>
         
@@ -694,19 +678,25 @@ const MEUS_ICONES = {
         const generalItemsDB = { habilidades: ['Ataque Básico', 'Esquiva', 'Cura Menor', 'Bola de Fogo'], equipamentos: ['Espada Curta', 'Armadura de Couro', 'Poção de Cura'], itens: ['Tocha', 'Corda', 'Rações'] };
 
         // --- INIT ---
-        window.onload = () => {
+                window.onload = () => {
             if(!roomCode) {
                 roomCode = prompt("Nome da Sala (Multiplayer):") || 'Lobby';
                 localStorage.setItem('rpg_room_code_v14', roomCode);
             }
-            document.getElementById('room-display').innerText = roomCode;
+            // Verifica se o elemento existe antes de escrever nele
+            const roomDisplay = document.getElementById('room-display');
+            if(roomDisplay) roomDisplay.innerText = roomCode;
             
             dbRef = db.ref('rpg_rooms/' + roomCode);
             
+            // ESCUTA PERSONAGENS
             dbRef.child('chars').on('value', (snapshot) => {
                 const data = snapshot.val();
-                chars = data || [];
+                // Conversão segura: se vier objeto, vira array. Se for nulo, vira []
+                chars = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+                
                 renderHome();
+                
                 if(activeId) {
                     const c = getActive();
                     if(c) {
@@ -723,40 +713,38 @@ const MEUS_ICONES = {
                     }
                 }
             });
-    // Dentro do window.onload, logo abaixo dos outros dbRef...
-    
-    // ESCUTA A LISTA DE NPCS DO MESTRE
-    dbRef.child('npcs').on('value', (snapshot) => {
-        const data = snapshot.val();
-        npcs = data || []; // Se não tiver nada, fica vazio
-        
-        // Se a aba de NPCs estiver aberta, atualiza na hora
-        if(document.getElementById('view-npcs').classList.contains('active')) {
-            renderNPCs();
-        }
-    });
-    // ESCUTA A LISTA DE CENÁRIOS
-    dbRef.child('cenarios').on('value', (snapshot) => {
-        const data = snapshot.val();
-        cenarios = data || [];
-        
-        // Se a aba estiver aberta, atualiza
-        if(document.getElementById('view-cenarios').classList.contains('active')) {
-            renderCenarios();
-        }
-    });
 
+                    // --- OUVINTE UNIFICADO (NPCs + CENÁRIOS) ---
+        
+        // Escuta NPCs
+        dbRef.child('npcs').on('value', (snapshot) => {
+            const data = snapshot.val();
+            npcs = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            renderGmData(); // Chama a função unificada
+        });
+
+        // Escuta Cenários e joga na mesma lista
+        dbRef.child('cenarios').on('value', (snapshot) => {
+            const data = snapshot.val();
+            cenarios = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            renderGmData(); // Chama a função unificada
+        });
+
+            // ESCUTA ROLAGENS
             dbRef.child('rolls').limitToLast(1).on('child_added', (snapshot) => {
                 const r = snapshot.val();
                 if(Date.now() - r.id < 5000) { 
                     showToast(r);
-                    rollHistory.push(r);
-                    updateHistoryPanel();
+                    if(typeof rollHistory !== 'undefined') {
+                        rollHistory.push(r);
+                        updateHistoryPanel();
+                    }
                 }
             });
 
-            setupWizard();
+            if(typeof setupWizard === 'function') setupWizard();
         };
+
 
         function save() { if(chars) dbRef.child('chars').set(chars).catch(e => console.error(e)); }
         function getActive() { return chars.find(x => x.id == activeId); }
@@ -886,16 +874,54 @@ const MEUS_ICONES = {
                 cos:(c.attrs.int*10)+(c.attrs.aur*10)+(cm.cos||0)+(c.stats.cos.b||0), ki:(c.attrs.for*10)+(cm.ki||0)+(c.stats.ki.b||0), ck:(c.attrs.aur*10)+(cm.ck||0)+(c.stats.ck.b||0)
             };
         }
-        function openSheet(id){
-            activeId=id; const c=getActive(); if(!c) return;
-            calcMax(c);
-            document.getElementById('sh-char-name').innerText=c.name; document.getElementById('sh-player-race').innerText=c.player;
-            document.getElementById('sheet-screen').style.display='flex'; navTo('info');
-            document.getElementById('sh-hist').innerText=c.hist; document.getElementById('sh-class').innerText=c.classe; document.getElementById('sh-origem').innerText=c.race;
-            renderAttrs(); ['habilidades','pericias','oficios','equipamentos','itens'].forEach(t=>renderList(t)); renderFavs();
-        }
-        function closeSheet(){activeId=null; document.getElementById('sheet-screen').style.display='none'; renderHome();}
-        function navTo(v){document.querySelectorAll('.sheet-view').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');document.getElementById('menu-overlay').style.display='none';}
+        function openSheet(id) {
+    activeId = id;
+    document.getElementById('home-screen').style.display = 'none';
+    document.getElementById('sheet-screen').style.display = 'flex';
+    
+    // MOSTRA os botões flutuantes
+    document.querySelector('.fab-menu').style.setProperty('display', 'flex', 'important');
+    document.querySelector('.fab-history').style.setProperty('display', 'flex', 'important');
+    
+    renderSheet(getActive());
+    navTo('info'); // Abre na aba info por padrão
+}
+
+function closeSheet() {
+    activeId = null;
+    document.getElementById('sheet-screen').style.display = 'none';
+    document.getElementById('home-screen').style.display = 'flex';
+    
+    // ESCONDE os botões flutuantes
+    document.querySelector('.fab-menu').style.setProperty('display', 'none', 'important');
+    document.querySelector('.fab-history').style.setProperty('display', 'none', 'important');
+    
+    // Garante que o painel de histórico também feche
+    document.getElementById('history-panel').style.display = 'none';
+}
+
+     function navTo(v) { 
+    // Remove o 'active' de todas as abas
+    document.querySelectorAll('.sheet-view').forEach(e => e.classList.remove('active')); 
+    
+    // Ativa a aba desejada
+    const target = document.getElementById('view-' + v);
+    if(target) {
+        target.classList.add('active'); 
+    } else if (v === 'npcs') {
+        // Caso o ID seja diferente (ex: view-npcs)
+        document.getElementById('view-npcs').classList.add('active');
+    }
+    
+    // Se for a aba unificada, renderiza os dados
+    if (v === 'npcs') {
+        renderGmData();
+    }
+    
+    // FECHA O MENU AUTOMATICAMENTE
+    toggleMenu(); 
+}
+
         function toggleMenu(){const m=document.getElementById('menu-overlay');m.style.display=(m.style.display==='flex')?'none':'flex';}
        function toggleAttrEdit() { 
     attrEditMode = !attrEditMode; 
@@ -1352,67 +1378,46 @@ function joinCamp() {
         // Atualiza a borda do modal imediatamente para dar feedback visual
         document.querySelector('#settings-modal button').style.background = c;
     }
-    function renderNPCs() {
-    const div = document.getElementById('list-npcs');
-    div.innerHTML = '';
+        function renderGmData() {
+        const div = document.getElementById('list-npcs'); // Alvo: Aba de NPCs
+        if(!div) return;
+        div.innerHTML = '';
+        
+        // Junta NPCs e Cenários em uma única lista para o jogador
+        const combined = [...npcs, ...cenarios];
+        
+        if(combined.length === 0) {
+            div.innerHTML = '<p style="color:#666; text-align:center; width:100%; margin-top:20px;">Nada revelado pelo Mestre ainda.</p>';
+            return;
+        }
 
-    if (!npcs || npcs.length === 0) {
-        div.innerHTML = '<p style="color:#666; text-align:center; grid-column: 1 / -1;">Nenhum NPC revelado ainda.</p>';
-        return;
+        combined.forEach(item => {
+            const img = (item.img && item.img.length > 20) ? item.img : 'https://via.placeholder.com/150?text=Sem+Foto';
+            
+            div.innerHTML += `
+            <div class="npc-card" style="margin-bottom:15px;">
+                <span class="npc-name">${item.name}</span>
+                <img src="${img}" class="npc-img" onclick="expandImage('${img}')">
+                <div class="npc-desc">${item.desc || ''}</div>
+            </div>`;
+        });
     }
 
-    npcs.forEach(npc => {
-        // Se o mestre não pôs foto, usa uma genérica
-        const imgUrl = npc.img || 'https://via.placeholder.com/150?text=NPC';
-        
-        div.innerHTML += `
-            <div class="npc-card">
-                <span class="npc-name">${npc.name}</span>
-                
-                <img src="${imgUrl}" class="npc-img" onclick="expandImage('${imgUrl}')">
-                
-                ${npc.desc ? `<div class="npc-desc">${npc.desc}</div>` : ''}
-            </div>
-        `;
-    });
-}
+    // Função de Zoom (Caso não tenha no seu arquivo)
+    function expandImage(src) {
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;justify-content:center;align-items:center;';
+        modal.onclick = () => modal.remove();
+        modal.innerHTML = `<img src="${src}" style="max-width:95%; max-height:90%; border-radius:10px; box-shadow:0 0 30px rgba(176,38,255,0.5);">`;
+        document.body.appendChild(modal);
+    }
 
-// Bônus: Função para dar zoom na foto se clicar nela
-function expandImage(url) {
-    // Pode usar o mesmo modal de configurações ou criar um simples alert visual
-    window.open(url, '_blank');
-}
 
     function setBg(u){
         getActive().bg=u; 
         save(); 
         renderHome();
     }
-function renderCenarios() {
-    const div = document.getElementById('list-cenarios');
-    div.innerHTML = '';
-
-    if (!cenarios || cenarios.length === 0) {
-        div.innerHTML = '<p style="color:#666; text-align:center;">Nenhum local descoberto.</p>';
-        return;
-    }
-
-    cenarios.forEach(local => {
-        const imgUrl = local.img || 'https://via.placeholder.com/300x150?text=Cenario';
-        
-        div.innerHTML += `
-            <div class="place-card">
-                <div class="place-header">
-                    <span class="place-name">${local.name}</span>
-                </div>
-                
-                <img src="${imgUrl}" class="place-img" onclick="expandImage('${imgUrl}')">
-                
-                ${local.desc ? `<div class="place-desc">${local.desc}</div>` : ''}
-            </div>
-        `;
-    });
-}
     // --- FUNÇÃO PARA UPLOAD DE IMAGEM DE ITEM ---
     function uploadImagemItem(input) {
         if (input.files && input.files[0]) {
@@ -1457,6 +1462,13 @@ function renderCenarios() {
             reader.readAsDataURL(arquivo);
         }
     }
+function expandImage(src) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;justify-content:center;align-items:center;';
+    modal.onclick = () => modal.remove();
+    modal.innerHTML = `<img src="${src}" style="max-width:95%; max-height:90%; border-radius:10px; box-shadow:0 0 30px rgba(176,38,255,0.3);">`;
+    document.body.appendChild(modal);
+}
 
     </script>
 </body>

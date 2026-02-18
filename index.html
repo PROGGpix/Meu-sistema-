@@ -415,7 +415,7 @@
     <div id="wizard-screen">
         <div class="wiz-nav"><span class="wn-item" id="nav-1">ATRIBUTOS</span>→<span class="wn-item" id="nav-2">CLASSES</span>→<span class="wn-item" id="nav-3">OFÍCIOS</span>→<span class="wn-item" id="nav-4">PERÍCIAS</span>→<span class="wn-item" id="nav-5">FIM</span></div>
         <div class="wiz-content">
-            <div id="step-1" class="step-view active"><h2 style="text-align:center; color:#fff;">ATRIBUTOS</h2><div class="attr-row"><span>FOR</span><input type="number" id="w-for" class="attr-input" value="1"></div><div class="attr-row"><span>AGI</span><input type="number" id="w-agi" class="attr-input" value="1"></div><div class="attr-row"><span>INT</span><input type="number" id="w-int" class="attr-input" value="1"></div><div class="attr-row"><span>VIG</span><input type="number" id="w-vig" class="attr-input" value="1"></div><div class="attr-row"><span>AUR</span><input type="number" id="w-aur" class="attr-input" value="1"></div></div>
+            <div id="step-1" class="step-view active"><h2 style="text-align:center; color:#fff;">ATRIBUTOS</h2><div class="attr-row"><span>FOR</span><input type="number" id="w-for" class="attr-input" value="1"></div><div class="attr-row"><span>AGI</span><input type="number" id="w-agi" class="attr-input" value="1"></div><div class="attr-row"><span>INT</span><input type="number" id="w-int" class="attr-input" value="1"></div><div class="attr-row"><span>VIG</span><input type="number" id="w-vig" class="attr-input" value="1"></div><div class="attr-row"><span>AUR</span><input type="number" id="w-aur" class="attr-input" value="1"></div><div class="attr-row"><span>CAR</span><input type="number" id="w-car" class="attr-input" value="1"></div></div>
             <div id="step-2" class="step-view"><h2 style="text-align:center; color:#fff;">CLASSES</h2><div id="classes-container"></div></div>
             <div id="step-3" class="step-view"><h2 style="text-align:center; color:#fff;">OFÍCIOS</h2><div id="oficios-container"></div></div>
             <div id="step-4" class="step-view"><h2 style="text-align:center; color:#fff;">PERÍCIAS</h2><div id="pericias-container"></div></div>
@@ -449,7 +449,7 @@
              style="width: 75px; height: 75px; object-fit: contain;">
     </button>
 </div>
-<div id="base-attrs" style="display:grid; grid-template-columns:repeat(5,1fr); gap:5px; text-align:center; margin-bottom: 20px;"></div>
+<div id="base-attrs" style="display:grid; grid-template-columns:repeat(6,1fr); gap:5px; text-align:center; margin-bottom: 20px;"></div>
                 
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid #333; padding-bottom:5px; margin-bottom:15px; margin-top:20px;">
                     <h3 style="margin:0;">Reservas Vitais</h3>
@@ -860,7 +860,8 @@ const MEUS_ICONES = {
         function updateWizUI(){document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));document.getElementById(`step-${wizStep}`).classList.add('active');}
         function nextStep(){ if(wizStep<5){wizStep++;updateWizUI();}else finishChar(); }
         function finishChar(){
-            const newChar={id:Date.now(), name:document.getElementById('w-name').value, player:document.getElementById('w-player').value, race:document.getElementById('w-race').value, hist:document.getElementById('w-hist').value, age:document.getElementById('w-age').value, classe:tempChar.classe, stats:{hp:{c:25,b:0},mp:{c:15,b:0},cos:{c:0,b:0},ki:{c:0,b:0},ck:{c:0,b:0}, level:1, xp:0, def:0, res:0}, attrs:{for:parseInt(document.getElementById('w-for').value)||1, agi:parseInt(document.getElementById('w-agi').value)||1, int:parseInt(document.getElementById('w-int').value)||1, vig:parseInt(document.getElementById('w-vig').value)||1, aur:parseInt(document.getElementById('w-aur').value)||1}, lists:{habilidades:[],pericias:tempChar.pericias.map(p=>({n:p,fav:false})),oficios:tempChar.oficios.map(o=>({n:o,fav:false})),equipamentos:[],itens:[]}, color:'#b026ff'};
+            const newChar={id:Date.now(), name:document.getElementById('w-name').value, player:document.getElementById('w-player').value, race:document.getElementById('w-race').value, hist:document.getElementById('w-hist').value, age:document.getElementById('w-age').value, classe:tempChar.classe, stats:{hp:{c:25,b:0},mp:{c:15,b:0},cos:{c:0,b:0},ki:{c:0,b:0},ck:{c:0,b:0}, level:1, xp:0, def:0, res:0}, attrs:{for:parseInt(document.getElementById('w-for').value)||1, agi:parseInt(document.getElementById('w-agi').value)||1, int:parseInt(document.getElementById('w-int').value)||1, vig:parseInt(document.getElementById('w-vig').value)||1, aur:parseInt(document.getElementById('w-aur').value)||1,car:parseInt(document.getElementById('w-car').value)||1
+},lists:{habilidades:[],pericias:tempChar.pericias.map(p=>({n:p,fav:false})),oficios:tempChar.oficios.map(o=>({n:o,fav:false})),equipamentos:[],itens:[]}, color:'#b026ff'};
             calcMax(newChar); ['hp','mp','cos','ki','ck'].forEach(k=>newChar.stats[k].c=newChar.calculatedMax[k]);
             if(!chars) chars = []; chars.push(newChar); save(); document.getElementById('wizard-screen').style.display='none'; document.getElementById('home-screen').style.display='flex'; renderHome();
         }
@@ -941,9 +942,10 @@ function closeSheet() {
     
     renderAttrs(); 
 }
-
+ 
         function renderAttrs() {
     const c = getActive(); 
+    if(c.attrs.car === undefined) c.attrs.car = 1;
     calcMax(c); 
     
     // Atualiza Level e XP

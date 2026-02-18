@@ -885,7 +885,8 @@ const MEUS_ICONES = {
     document.querySelector('.fab-history').style.setProperty('display', 'flex', 'important');
     
     renderSheet(getActive());
-    navTo('info'); // Abre na aba info por padrão
+renderAttrs();   // ← FORÇA OS ATRIBUTOS APARECEREM
+navTo('info'); // Abre na aba info por padrão
 }
 
 function closeSheet() {
@@ -918,7 +919,9 @@ function closeSheet() {
     if (v === 'npcs') {
         renderGmData();
     }
-    
+    if(v === 'atributos') {
+        renderAttrs
+    }
     // FECHA O MENU AUTOMATICAMENTE
     toggleMenu(); 
 }
@@ -944,7 +947,7 @@ function closeSheet() {
 }
  
         function renderAttrs() {
-    const c = getActive(); 
+    const c = getActive();         
     if(c.attrs.car === undefined) c.attrs.car = 1;
     calcMax(c); 
     

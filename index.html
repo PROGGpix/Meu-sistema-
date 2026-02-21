@@ -818,7 +818,15 @@ const MEUS_ICONES = {
             if(item.dmg) {
                 let total = 0; let details = [];
                 let r1 = rollDice(item.dmg); total += r1.total; details.push(`${item.dmg}: ${r1.total}`);
-                if(item.extraDmg) { item.extraDmg.forEach(ex => { let r2 = rollDice(ex.dice); total += r2.total; details.push(`${ex.type} (${ex.dice}): ${r2.total}`); }); }
+                if(item.extraDmg && item.extraDmg.length > 0) {
+    item.extraDmg.forEach(ex => {
+        if(ex.dice) {
+            let r2 = rollDice(ex.dice);
+            total += r2.total;
+            details.push(`${ex.type || "Extra"} (${ex.dice}): ${r2.total}`);
+        }
+    });
+}
                 if(manualMod !== 0) { total += manualMod; details.push(`Mod: ${manualMod}`); }
                 registerRoll("DANO TOTAL", total, details.join(' + '));
                 return;
@@ -1183,7 +1191,7 @@ function closeSheet() {
        function saveEdit() { 
     // Pega o item atual
     const item = getActive().lists[editingList][editingIndex]; 
-    
+    if(!item.extraDmg) item.extraDmg = [];
     // Salva os valores dos inputs para dentro do item
     item.n = document.getElementById('ed-name').value; 
     item.dmg = document.getElementById('ed-dmg').value; 
